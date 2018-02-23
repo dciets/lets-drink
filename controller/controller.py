@@ -1,6 +1,7 @@
 import pygame
 import sys
 import threading
+import time
 
 class Controller(threading.Thread):
     BUTTON_PRESSED = pygame.USEREVENT + 1
@@ -14,5 +15,6 @@ class Controller(threading.Thread):
         try:
             while True:
                 self.read()
+                time.sleep(0.001)
         except KeyboardInterrupt:
             pygame.quit()

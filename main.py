@@ -15,7 +15,7 @@ def main():
 
     pygame.font.init()
 
-    if ON_ARCADE or True:
+    if ON_ARCADE:
         ctrl = controller.USB()
         border = pygame.display.set_mode((game.Game.SCREEN_WIDTH, game.Game.SCREEN_HEIGHT)) #, pygame.FULLSCREEN)
     else:

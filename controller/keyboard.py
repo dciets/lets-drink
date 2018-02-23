@@ -6,9 +6,8 @@ class Keyboard(Controller):
         self.weight_flags = [False, False]
         self.weight_value = [750, 750]
 
-        Contrller.__init__(self)
+        Controller.__init__(self)
 
-       
     def read(self):
         for event in pygame.event.get(pygame.QUIT):
             pygame.quit()
