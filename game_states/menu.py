@@ -14,7 +14,6 @@ class Menu:
 
         self.game.screen.blit(textsurface,(200,200))
 
-
         for evt in pygame.event.get([Controller.BUTTON_PRESSED, Controller.BUTTON_RELEASED]):
             if evt.type == Controller.BUTTON_PRESSED and evt.index == 0:
                 self.s1 = True
@@ -33,6 +32,9 @@ class Menu:
 
         if self.s2:
             pygame.draw.rect(self.game.screen, (0, 255, 0), (150, 50, 50, 50))
+
+        for evt in pygame.event.get(Controller.WEIGHT):
+            print evt.value
 
         for evt in pygame.event.get():
             pass

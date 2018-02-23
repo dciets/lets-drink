@@ -3,6 +3,7 @@ import sys
 import serial
 import struct
 import serial.tools.list_ports
+import time
 
 
 class USB(Controller):
@@ -51,3 +52,14 @@ class USB(Controller):
             if button2 != self.button2:
                 self.button2 = button2
                 pygame.event.post(pygame.event.Event(USB.EVENT_TYPES[button2], index=1))
+        else:
+            s = ''
+            while len(s) < 4:
+                s += self.device.read()
+
+            w1 = struct.unpack('H', s[:2])
+            w2 = struct.unpack('H', s[2:])
+
+            pygame.event.post(pygame.event.Event(Controller.WEIGHT, value=(w1, w2)))
+
+        time.sleep(0.01)
