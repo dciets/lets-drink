@@ -26,6 +26,7 @@ class Game:
         self.timer = Clock()
 
         self.font = pygame.font.SysFont('Roboto', 30)
+        self.title_font = pygame.font.SysFont('Roboto', 65)
 
         self.init()
 
