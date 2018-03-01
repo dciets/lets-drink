@@ -1,6 +1,8 @@
 from controller import Controller
 import pygame
 
+from spike_game import game
+
 class Menu:
     def __init__(self, game):
         self.game = game
@@ -38,3 +40,6 @@ class Menu:
 
         for evt in pygame.event.get():
             pass
+
+        if self.s1 and self.s2:
+            self.game.state = game.SpikeGame(self.game.screen, self.game.GAME_WIDTH, self.game.GAME_HEIGHT)
