@@ -39,13 +39,13 @@ class SpikeGame:
 
     screen_size = (0, 0)
 
-    def __init__(self, screen, width, height, players_name):
+    def __init__(self, game, players_name):
 
-        self.screen = screen
+        self.screen = game.screen
         self.start = time.time()
         self.font = pygame.font.SysFont('Comic Sans MS', 72)
         self.clock = pygame.time.Clock()
-        self.screen_size = [width, height]
+        self.screen_size = [self.screen.get_width(), self.screen.get_height()]
         self.players_name = players_name
         self.spike_width = self.screen_size[0] / 15
         self.spike_height = self.screen_size[1] / 15
@@ -197,24 +197,28 @@ class SpikeGame:
             self.wait_for_next_round()
 
     def wait_for_next_round(self):
+        cnt = (not self.player1.is_alive) + (not self.player2.is_alive)
+        a = 0
+        b = 0
         while self.round_end:
             self.draw_stock()
             self.run()
             for evt in pygame.event.get([Controller.WEIGHT]):
-                print(evt.type, evt.index)
-                if evt.type == Controller.WEIGHT and evt.index == 0:
-                    self.round_end = False
-                    self.game_reset()
-                if evt.type == Controller.WEIGHT and evt.index == 1:
-                    self.round_end = False
-                    self.game_reset()
+                if evt.type == Controller.WEIGHT and evt.index == 0 and not self.player1.is_alive:
+                    a = 1
+                if evt.type == Controller.WEIGHT and evt.index == 1 and not self.player2.is_alive:
+                    b = 1
+            
+            if cnt - a - b == 0:
+                self.round_end = False
+                self.game_reset()
     
     def draw_end_round(self):
         if not (self.player1.is_alive or self.players_stock[0] == 0):
             textsurface = self.font.render(self.player1.name + ' lost one life!', False, (255, 0, 0))
             self.screen.blit(textsurface,((self.screen_size[0] / 2 ) - (textsurface.get_width()/2),
                 (self.screen_size[1] / 2) - (textsurface.get_height()/2)-35))
-        if not (self.player2.is_alive or self.players_stock[0] == 0):
+        if not (self.player2.is_alive or self.players_stock[1] == 0):
             textsurface = self.font.render(self.player2.name + ' lost one life!', False, (255, 0, 0))
             self.screen.blit(textsurface,((self.screen_size[0] / 2 ) - (textsurface.get_width()/2),
                 (self.screen_size[1] / 2) - (textsurface.get_height()/2)+35))
