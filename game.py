@@ -6,7 +6,7 @@ import sys
 
 
 class Game:
-    FPS = 30
+    FPS = 60
 
     SCREEN_WIDTH = 800
     SCREEN_HEIGHT = 600

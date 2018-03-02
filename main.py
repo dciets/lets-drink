@@ -11,7 +11,7 @@ ON_ARCADE = os.getlogin() == 'capra'
 
 def main():
     pygame.init()
-    pygame.display.set_caption("L'ETS Drink")
+    pygame.display.set_caption("L'ETS be sobre")
 
     pygame.font.init()
 

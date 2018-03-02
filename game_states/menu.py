@@ -42,4 +42,5 @@ class Menu:
             pass
 
         if self.s1 and self.s2:
-            self.game.state = game.SpikeGame(self.game.screen, self.game.GAME_WIDTH, self.game.GAME_HEIGHT)
+            players_name = ("ETS", "ULaval")
+            self.game.state = game.SpikeGame(self.game.screen, self.game.GAME_WIDTH, self.game.GAME_HEIGHT, players_name)

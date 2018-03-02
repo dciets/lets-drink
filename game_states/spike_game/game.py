@@ -13,7 +13,7 @@ class SpikeGame:
     start = 0
     font = ""
     clock = 0
-    done = False
+    round_end = False
     screen = ""
     t = 0.01
 
@@ -30,21 +30,25 @@ class SpikeGame:
     static_spike_arr = []
     level = 1
 
+    STOCK = 3
+    players_stock = [STOCK, STOCK]
+
     WIDTH_MAGIC_NUMBER = 0.0546875
     HEIGHT_MAGIC_NUMBER = 0.064814815
     JUMP_SPEED_MAGIC_NUMBER = 1.851851852
 
     screen_size = (0, 0)
 
-    def __init__(self, screen, width, height):
+    def __init__(self, screen, width, height, players_name):
 
         self.screen = screen
         self.start = time.time()
         self.font = pygame.font.SysFont('Comic Sans MS', 72)
         self.clock = pygame.time.Clock()
         self.screen_size = [width, height]
-        self.spike_width = self.screen_size[0] / 20
-        self.spike_height = self.screen_size[1] / 20
+        self.players_name = players_name
+        self.spike_width = self.screen_size[0] / 15
+        self.spike_height = self.screen_size[1] / 15
         self.player1, self.player2 = self.create_players()
         self.gen_static_spike()
 
@@ -57,14 +61,14 @@ class SpikeGame:
 
         ship1 = pygame.image.load(self.PLAYER1_SPRITE).convert_alpha()
         ship1 = pygame.transform.scale(ship1, (w, h))
-        player1 = player.player(w, h, (0, 100), self.PLAYER_VELX, ship1, "Player 1")
+        player1 = player.player(w, h, (0, 100), self.PLAYER_VELX, ship1, self.players_name[0])
         player1.jump_speed = jump_speed
 
         ship2 = pygame.image.load(self.PLAYER2_SPRITE).convert_alpha()
         ship2 = pygame.transform.scale(ship2, (w, h))
         ship2 = pygame.transform.flip(ship2, True, False)  # flip image
         start2 = (self.screen_size[0] - player1.width, 100)
-        player2 = player.player(w, h, start2, -self.PLAYER_VELX, ship2, "Player 2")
+        player2 = player.player(w, h, start2, -self.PLAYER_VELX, ship2, self.players_name[1])
         player2.jump_speed = jump_speed
 
         return player1, player2
@@ -78,7 +82,9 @@ class SpikeGame:
         self.screen.fill(self.background_color)
         self.draw_spikes()
         self.draw_level()
-
+        self.draw_stock()
+        self.draw_end_round()
+            
         #custom event for the arcade controller (Press W and I on a keyboard)
         for evt in pygame.event.get([Controller.BUTTON_PRESSED, Controller.BUTTON_RELEASED]):
             if  evt.type == Controller.BUTTON_PRESSED and evt.index == 0:
@@ -116,9 +122,7 @@ class SpikeGame:
         self.screen.blit(level_txt, ((self.screen_size[0] / 2 ) - (level_txt.get_width()/2), 50))
 
     def draw_spikes(self):
-        for c in self.spike_arr:
-            pygame.draw.polygon(self.screen, self.spike_color, [c[0], c[1], c[2]], 0)
-        for c in self.static_spike_arr:
+        for c in self.spike_arr + self.static_spike_arr:
             pygame.draw.polygon(self.screen, self.spike_color, [c[0], c[1], c[2]], 0)
 
     def gen_static_spike(self):
@@ -161,6 +165,8 @@ class SpikeGame:
         self.spike_arr = []
         self.static_spike_arr = []
         self.gen_static_spike()
+        if any(x == 0 for x in self.players_stock):
+            self.players_stock = [self.STOCK, self.STOCK]
 
     def is_player_alive(self):
         p1 = Polygon(self.player1.get_polygon())
@@ -173,13 +179,70 @@ class SpikeGame:
             if p2.intersects(s):
                 self.player2.is_alive = False
 
-        self.draw_end_game_msg()
+        if not (self.player1.is_alive and self.player2.is_alive) and not self.round_end:
+            self.remove_stock()
+        
+        if(any(x == 0 for x in self.players_stock)):
+            self.draw_end_game_msg()
+
+    def remove_stock(self):
+        if not self.round_end:
+            if not self.player1.is_alive:
+                self.players_stock[0] = self.players_stock[0] - 1
+        
+            if not self.player2.is_alive:
+                self.players_stock[1] = self.players_stock[1] - 1
+            
+            self.round_end = True
+            self.wait_for_next_round()
+
+    def wait_for_next_round(self):
+        while self.round_end:
+            self.draw_stock()
+            self.run()
+            for evt in pygame.event.get([Controller.WEIGHT]):
+                print(evt.type, evt.index)
+                if evt.type == Controller.WEIGHT and evt.index == 0:
+                    self.round_end = False
+                    self.game_reset()
+                if evt.type == Controller.WEIGHT and evt.index == 1:
+                    self.round_end = False
+                    self.game_reset()
+    
+    def draw_end_round(self):
+        if not (self.player1.is_alive or self.players_stock[0] == 0):
+            textsurface = self.font.render(self.player1.name + ' lost one life!', False, (255, 0, 0))
+            self.screen.blit(textsurface,((self.screen_size[0] / 2 ) - (textsurface.get_width()/2),
+                (self.screen_size[1] / 2) - (textsurface.get_height()/2)-35))
+        if not (self.player2.is_alive or self.players_stock[0] == 0):
+            textsurface = self.font.render(self.player2.name + ' lost one life!', False, (255, 0, 0))
+            self.screen.blit(textsurface,((self.screen_size[0] / 2 ) - (textsurface.get_width()/2),
+                (self.screen_size[1] / 2) - (textsurface.get_height()/2)+35))
 
     def draw_end_game_msg(self):
+        if self.players_stock[0] == 0:
+            textsurface = self.font.render(self.player1.name + ' lost the game!', False, (255, 0, 0))
+            self.screen.blit(textsurface,((self.screen_size[0] / 2 ) - (textsurface.get_width()/2),
+                (self.screen_size[1] / 2) - (textsurface.get_height()/2)-35))
+        if self.players_stock[1] == 0:
+            textsurface = self.font.render(self.player2.name + ' lost the game!', False, (255, 0, 0))
+            self.screen.blit(textsurface,((self.screen_size[0] / 2 ) - (textsurface.get_width()/2),
+                (self.screen_size[1] / 2) - (textsurface.get_height()/2)+35))
 
-        if not self.player1.is_alive:
-            textsurface = self.font.render(self.player1.name + ' lost!', False, (255, 0, 0))
-            self.screen.blit(textsurface,((self.screen_size[0] / 2 ) - (textsurface.get_width()/2), (self.screen_size[1] / 2) - (textsurface.get_height()/2)-35))
-        if not self.player2.is_alive:
-            textsurface = self.font.render(self.player2.name + ' lost!', False, (255, 0, 0))
-            self.screen.blit(textsurface,((self.screen_size[0] / 2 ) - (textsurface.get_width()/2), (self.screen_size[1] / 2) - (textsurface.get_height()/2)+35))
+    def draw_stock(self):
+        for x in xrange(self.STOCK):
+            #player 2
+            pygame.draw.circle(self.screen, (0,0,255), (self.screen_size[0]/2 + (x + 1) * 20, self.spike_height + 10), 5)
+            if x >= self.players_stock[1]:
+                pygame.draw.line(self.screen, (255, 0, 0), (self.screen_size[0]/2 + (x + 1) * 20 - 3, self.spike_height + 7),
+                    (self.screen_size[0]/2 + (x + 1) * 20 + 3, self.spike_height + 13), 2)
+                pygame.draw.line(self.screen, (255, 0, 0), (self.screen_size[0]/2 + (x + 1) * 20 + 3, self.spike_height + 7),
+                    (self.screen_size[0]/2 + (x + 1) * 20 - 3, self.spike_height + 13), 2)
+            
+            #player 1
+            pygame.draw.circle(self.screen, (0,0,255), (self.screen_size[0]/2 - (x + 1) * 20, self.spike_height + 10), 5)
+            if x >= self.players_stock[0]:
+                pygame.draw.line(self.screen, (255, 0, 0), (self.screen_size[0]/2 - (x + 1) * 20 - 3, self.spike_height + 7),
+                    (self.screen_size[0]/2 - (x + 1) * 20 + 3, self.spike_height + 13), 2)
+                pygame.draw.line(self.screen, (255, 0, 0), (self.screen_size[0]/2 - (x + 1) * 20 + 3, self.spike_height + 7),
+                    (self.screen_size[0]/2 - (x + 1) * 20 - 3, self.spike_height + 13), 2)
