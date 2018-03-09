@@ -7,6 +7,8 @@ import threading
 from random import randint
 from controller import Controller
 
+
+##TODO: use de delta t for the redraw
 class SpikeGame:
 
     background_color = (0, 0 ,0)
@@ -15,13 +17,15 @@ class SpikeGame:
     clock = 0
     round_end = False
     screen = ""
-    t = 0.01
+
+    getTicksLastFrame = 0
+    dt = 0.01
 
     spike_color = (125, 125, 125)
     spike_width = 0
     spike_height = 0
 
-    PLAYER_VELX = 8
+    PLAYER_VELX = 420
 
     PLAYER1_SPRITE = "sprites/spaceship1.png"
     PLAYER2_SPRITE = "sprites/spaceship2.png"
@@ -74,10 +78,10 @@ class SpikeGame:
         return player1, player2
 
     def run(self):
-        time.sleep(0.01)
-        pressed = pygame.key.get_pressed()
-        if pressed[pygame.K_x]:
-            self.game_reset()
+
+        t = pygame.time.get_ticks()
+        self.dt = (t - self.getTicksLastFrame) / 1000.0
+        self.getTicksLastFrame = t
 
         self.screen.fill(self.background_color)
         self.draw_spikes()
@@ -113,9 +117,9 @@ class SpikeGame:
         pygame.display.flip()
 
     def update_player(self, player):
-        player.update_y_velocity(self.t)
-        player.update_y_position(self.t)
-        player.update_x_position(self.screen_size[0])
+        player.update_y_velocity(0.01)
+        player.update_y_position(0.01)
+        player.update_x_position(self.screen_size[0], self.dt)
 
     def draw_level(self):
         level_txt = self.font.render(str(self.level), False, (0, 255, 0))

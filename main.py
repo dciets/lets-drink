@@ -17,7 +17,7 @@ def main():
 
     if ON_ARCADE:
         ctrl = controller.USB()
-        border = pygame.display.set_mode((game.Game.SCREEN_WIDTH, game.Game.SCREEN_HEIGHT)) #, pygame.FULLSCREEN)
+        border = pygame.display.set_mode((game.Game.SCREEN_WIDTH, game.Game.SCREEN_HEIGHT), pygame.FULLSCREEN) #, pygame.FULLSCREEN)
     else:
         ctrl = controller.Keyboard()
         border = pygame.display.set_mode((game.Game.SCREEN_WIDTH, game.Game.SCREEN_HEIGHT))
