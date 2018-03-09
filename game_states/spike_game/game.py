@@ -9,8 +9,6 @@ from random import randint
 from controller import Controller
 from background import background
 
-
-##TODO: use de delta t for the redraw
 class SpikeGame:
 
     background_color = (0, 0 ,0)
@@ -20,18 +18,13 @@ class SpikeGame:
     round_end = False
     screen = ""
 
-    getTicksLastFrame = 0
-    dt = 0.01
-
-    spike_color = (125, 125, 125, 0)
     spike_width = 0
     spike_height = 0
 
-    PLAYER_VELX = 400
+    PLAYER_VELX = 12
 
     PLAYER1_SPRITE = "sprites/spaceship1.png"
     PLAYER2_SPRITE = "sprites/spaceship2.png"
-    BACKGROUND_SPRITE = "sprites/back.png"
     #spike position in screen
     SPIKE_POSITION = ["TOP", "BOTTOM", "LEFT", "RIGHT"]
 
@@ -61,7 +54,7 @@ class SpikeGame:
         self.player1, self.player2 = self.create_players()
         self.gen_static_spike()
 
-        self.background = background(self.BACKGROUND_SPRITE, [0,0])
+        self.background = background(self.screen.get_width(), self.screen.get_height())
 
     def create_players(self):
 
@@ -86,12 +79,6 @@ class SpikeGame:
 
     def run(self):
 
-        #getting nb tick since last run call
-        t = pygame.time.get_ticks()
-        #dt since last tick
-        self.dt = (t - self.getTicksLastFrame) / 1000.0
-        self.getTicksLastFrame = t
-
         self.screen.fill([255, 255, 255])
         self.screen.blit(self.background.image, self.background.rect)
 
@@ -115,8 +102,8 @@ class SpikeGame:
             self.update_player(self.player2)
 
         # check if players touch the edges (both touch at the same time)
-        if self.player1.x < 0 or self.player1.x > self.screen_size[0] - self.player1.width:
-            if self.player1.is_alive or self.player2.is_alive:
+        if self.player1.x < 0 or self.player2.x < 0:
+            if self.player1.is_alive and self.player2.is_alive:
                 d = threading.Thread(name='gen_spike', target=self.gen_spikes)
                 d.start()
                 self.level += 1
@@ -130,8 +117,7 @@ class SpikeGame:
     def update_player(self, player):
         player.update_y_velocity(0.01)
         player.update_y_position(0.01)
-        #redraw player x position relative to the dt
-        player.update_x_position(self.screen_size[0], self.dt)
+        player.update_x_position(self.screen_size[0])
 
     def draw_level(self):
         level_txt = self.font.render(str(self.level), False, (0, 255, 0))
@@ -140,14 +126,13 @@ class SpikeGame:
     def draw_spikes(self):
         for spike in self.spike_arr + self.static_spike_arr:
             if spike.position == self.SPIKE_POSITION[0]:
-                self.screen.blit(spike.get_spike_image(self.spike_color), (spike.get_x(), spike.get_y()))
+                self.screen.blit(spike.get_spike_image(), (spike.get_x(), spike.get_y()))
             elif spike.position == self.SPIKE_POSITION[1]:
-                self.screen.blit(pygame.transform.flip(spike.get_spike_image(self.spike_color), False, True), (spike.get_x(), spike.get_y() - spike.height))
+                self.screen.blit(pygame.transform.flip(spike.get_spike_image(), False, True), (spike.get_x(), spike.get_y() - spike.height))
             elif spike.position == self.SPIKE_POSITION[2]:
-                self.screen.blit(pygame.transform.rotate(spike.get_spike_image(self.spike_color), 90), (spike.get_x(), spike.get_y()))
+                self.screen.blit(pygame.transform.rotate(spike.get_spike_image(), 90), (spike.get_x(), spike.get_y()))
             elif spike.position == self.SPIKE_POSITION[3]:
-                self.screen.blit(pygame.transform.rotate(spike.get_spike_image(self.spike_color), 270), (spike.get_x() - spike.height, spike.get_y()))
-            #pygame.draw.polygon(self.screen, self.spike_color, spike.polygone)
+                self.screen.blit(pygame.transform.rotate(spike.get_spike_image(), 270), (spike.get_x() - spike.height, spike.get_y()))
 
     def gen_static_spike(self):
         width = self.screen_size[0]
@@ -161,11 +146,9 @@ class SpikeGame:
 
     def gen_spikes(self):
         time.sleep(0.5)
-        if self.player1.is_alive or self.player2.is_alive:
+        if self.player1.is_alive and self.player2.is_alive:
             w = self.screen_size[0]
             h = self.screen_size[1]
-
-            self.random_spike_color()
 
             max_val = (self.screen_size[1] / self.spike_width) - 3
             r = randint(min((self.level / 2), max_val - 4), max_val)
@@ -180,12 +163,6 @@ class SpikeGame:
                 self.spike_arr.append(spike(self.spike_width, self.spike_height, p, self.SPIKE_POSITION[2]))
                 p = [(w,b),(w - self.spike_height, b + self.spike_width/2),(w,b + self.spike_width)]
                 self.spike_arr.append(spike(self.spike_width, self.spike_height, p, self.SPIKE_POSITION[3]))
-
-    def random_spike_color(self):
-        r = randint(125, 175)
-        g = randint(125, 175)
-        b = randint(125, 175)
-        self.spike_color = (r, g, b, 0)
 
     def game_reset(self):
         self.player1, self.player2 = self.create_players()

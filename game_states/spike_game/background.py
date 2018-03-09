@@ -1,6 +1,8 @@
 import pygame
 class background:
-    def __init__(self, image_file, location):
-        self.image = pygame.image.load(image_file)
+    BACKGROUND_SPRITE = "sprites/background.png"
+    def __init__(self, width, height):
+        self.image = pygame.image.load(self.BACKGROUND_SPRITE)
+        self.image = pygame.transform.scale(self.image, (width, height))
         self.rect = self.image.get_rect()
-        self.rect.left, self.rect.top = location
+        self.rect.left, self.rect.top = (0,0)
