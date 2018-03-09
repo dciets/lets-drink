@@ -1,4 +1,5 @@
 import player
+from spike import spike
 from shapely.geometry import Polygon
 import pygame
 import math
@@ -21,14 +22,16 @@ class SpikeGame:
     getTicksLastFrame = 0
     dt = 0.01
 
-    spike_color = (125, 125, 125)
+    spike_color = (125, 125, 125, 0)
     spike_width = 0
     spike_height = 0
 
-    PLAYER_VELX = 420
+    PLAYER_VELX = 400
 
     PLAYER1_SPRITE = "sprites/spaceship1.png"
     PLAYER2_SPRITE = "sprites/spaceship2.png"
+    #spike position in screen
+    SPIKE_POSITION = ["TOP", "BOTTOM", "LEFT", "RIGHT"]
 
     spike_arr = []
     static_spike_arr = []
@@ -129,16 +132,26 @@ class SpikeGame:
         self.screen.blit(level_txt, ((self.screen_size[0] / 2 ) - (level_txt.get_width()/2), 50))
 
     def draw_spikes(self):
-        for c in self.spike_arr + self.static_spike_arr:
-            pygame.draw.polygon(self.screen, self.spike_color, [c[0], c[1], c[2]], 0)
+        for spike in self.spike_arr + self.static_spike_arr:
+            if spike.position == self.SPIKE_POSITION[0]:
+                self.screen.blit(spike.get_spike_image(self.spike_color), (spike.get_x(), spike.get_y()))
+            elif spike.position == self.SPIKE_POSITION[1]:
+                self.screen.blit(pygame.transform.flip(spike.get_spike_image(self.spike_color), False, True), (spike.get_x(), spike.get_y() - spike.height))
+            elif spike.position == self.SPIKE_POSITION[2]:
+                self.screen.blit(pygame.transform.rotate(spike.get_spike_image(self.spike_color), 90), (spike.get_x(), spike.get_y()))
+            elif spike.position == self.SPIKE_POSITION[3]:
+                self.screen.blit(pygame.transform.rotate(spike.get_spike_image(self.spike_color), 270), (spike.get_x() - spike.height, spike.get_y()))
+            #pygame.draw.polygon(self.screen, self.spike_color, spike.polygone)
 
     def gen_static_spike(self):
         width = self.screen_size[0]
         height = self.screen_size[1]
 
         for i in xrange(1, width, self.spike_width):
-            self.static_spike_arr.append([(i,0),(i + self.spike_width/2, self.spike_height),(i + self.spike_width, 0)])
-            self.static_spike_arr.append([(i,height),(i + self.spike_width/2, height - self.spike_height),(i + self.spike_width, height)])
+            p = [(i,0),(i + self.spike_width/2, self.spike_height),(i + self.spike_width, 0)]
+            self.static_spike_arr.append(spike(self.spike_width, self.spike_height, p, self.SPIKE_POSITION[0]))
+            p = [(i,height),(i + self.spike_width/2, height - self.spike_height),(i + self.spike_width, height)]
+            self.static_spike_arr.append(spike(self.spike_width, self.spike_height, p, self.SPIKE_POSITION[1]))
 
     def gen_spikes(self):
         time.sleep(0.5)
@@ -156,14 +169,17 @@ class SpikeGame:
                 b = randint(1, max_val) * self.spike_width
                 while b in self.spike_arr:
                     b = randint(1, max_val + 1) * self.spike_width
-                self.spike_arr.append([(0,b),(self.spike_height, b + self.spike_width/2),(0,b + self.spike_width)])
-                self.spike_arr.append([(w,b),(w - self.spike_height, b + self.spike_width/2),(w,b + self.spike_width)])
+                
+                p = [(0,b),(self.spike_height, b + self.spike_width/2),(0,b + self.spike_width)]
+                self.spike_arr.append(spike(self.spike_width, self.spike_height, p, self.SPIKE_POSITION[2]))
+                p = [(w,b),(w - self.spike_height, b + self.spike_width/2),(w,b + self.spike_width)]
+                self.spike_arr.append(spike(self.spike_width, self.spike_height, p, self.SPIKE_POSITION[3]))
 
     def random_spike_color(self):
-        r = randint(50, 175)
-        g = randint(50, 175)
-        b = randint(50, 175)
-        self.spike_color = (r, g, b)
+        r = randint(125, 175)
+        g = randint(125, 175)
+        b = randint(125, 175)
+        self.spike_color = (r, g, b, 0)
 
     def game_reset(self):
         self.player1, self.player2 = self.create_players()
@@ -179,8 +195,8 @@ class SpikeGame:
         p1 = Polygon(self.player1.get_polygon())
         p2 = Polygon(self.player2.get_polygon())
 
-        for c in self.static_spike_arr + self.spike_arr:
-            s = Polygon(c)
+        for spike in self.static_spike_arr + self.spike_arr:
+            s = Polygon(spike.polygone)
             if p1.intersects(s):
                 self.player1.is_alive = False
             if p2.intersects(s):

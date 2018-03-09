@@ -43,8 +43,8 @@ class player:
         self.y = self.y + self.vely * t
 
     def update_x_position(self, max_width, dt):
+        self.x += self.velx * dt 
         if self.x < 0 or self.x > max_width - self.width:
             self.velx *= -1
             self.image = transform.flip(self.image, True, False)
-
-        self.x += self.velx * dt        
+       
