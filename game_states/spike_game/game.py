@@ -7,6 +7,7 @@ import time
 import threading
 from random import randint
 from controller import Controller
+from background import background
 
 
 ##TODO: use de delta t for the redraw
@@ -30,6 +31,7 @@ class SpikeGame:
 
     PLAYER1_SPRITE = "sprites/spaceship1.png"
     PLAYER2_SPRITE = "sprites/spaceship2.png"
+    BACKGROUND_SPRITE = "sprites/back.png"
     #spike position in screen
     SPIKE_POSITION = ["TOP", "BOTTOM", "LEFT", "RIGHT"]
 
@@ -58,6 +60,8 @@ class SpikeGame:
         self.spike_height = self.screen_size[1] / 15
         self.player1, self.player2 = self.create_players()
         self.gen_static_spike()
+
+        self.background = background(self.BACKGROUND_SPRITE, [0,0])
 
     def create_players(self):
 
@@ -88,7 +92,9 @@ class SpikeGame:
         self.dt = (t - self.getTicksLastFrame) / 1000.0
         self.getTicksLastFrame = t
 
-        self.screen.fill(self.background_color)
+        self.screen.fill([255, 255, 255])
+        self.screen.blit(self.background.image, self.background.rect)
+
         self.draw_spikes()
         self.draw_level()
         self.draw_stock()
