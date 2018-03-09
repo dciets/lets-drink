@@ -79,7 +79,9 @@ class SpikeGame:
 
     def run(self):
 
+        #getting nb tick since last run call
         t = pygame.time.get_ticks()
+        #dt since last tick
         self.dt = (t - self.getTicksLastFrame) / 1000.0
         self.getTicksLastFrame = t
 
@@ -119,6 +121,7 @@ class SpikeGame:
     def update_player(self, player):
         player.update_y_velocity(0.01)
         player.update_y_position(0.01)
+        #redraw player x position relative to the dt
         player.update_x_position(self.screen_size[0], self.dt)
 
     def draw_level(self):
