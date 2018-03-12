@@ -1,17 +1,14 @@
-#include <HX711.h>
 #include <CapacitiveSensor.h>
 
 CapacitiveSensor cs1 = CapacitiveSensor(2, 3); // 1MOhm resistor between pins 4 & 2, pin 2 is sensor pin, add a wire and or foil
-CapacitiveSensor cs2 = CapacitiveSensor(4, 5); // 1MOhm resistor between pins 4 & 6, pin 6 is sensor pin, add a wire and or foil
-
-// HX711(Data pin, Clock pin)
-HX711 scale1(A0, A1), scale2(A2, A3);
+CapacitiveSensor cs2 = CapacitiveSensor(5, 6); // 1MOhm resistor between pins 4 & 6, pin 6 is sensor pin, add a wire and or foil
 
 // sensor activation threshold
 #define THRESHOLD 250
 
 // sensor states
 bool state1, state2;
+bool weight1, weight2;
 
 long last_send = 0;
 
@@ -22,64 +19,73 @@ void setup() {
   cs1.set_CS_AutocaL_Millis(0xFFFFFFFF);
   cs2.set_CS_AutocaL_Millis(0xFFFFFFFF);
 
-  // test calibration
-  scale1.set_scale(1952.3392857142858);
-  scale1.tare();
-
-  scale2.set_scale(-1968.857142857143);
-  scale2.tare();
-
-
-  last_send = millis();
+  pinMode(8, INPUT_PULLUP);
+  pinMode(9, INPUT_PULLUP);
 }
 
 // 00000000
 // _______0 : message typte = input
 // ______s_ : button 1 state
 // _____s__ : button 2 state
+// ____w___ : weight 1 state
+// ___w____ : weight 2 state
 void send_input_msg() {
-  byte c = (state2 ? (1 << 2) : 0) | (state1 ? (1 << 1) : 0);
+  byte c = (state2 << 2) | (state1 << 1) | (weight1 << 3) | (weight2 << 4);
   Serial.write(c);
   // Serial.println(c, DEC);
 }
 
 void loop() {
-
-  long total1 =  cs1.capacitiveSensor(15);
-  long total2 =  cs2.capacitiveSensor(15);
+  bool changed = false;
+  
+  long total1 = cs1.capacitiveSensor(15);
+  long total2 = cs2.capacitiveSensor(15);
+  
+  bool w1 = digitalRead(8);
+  bool w2 = digitalRead(9);
 
   if(total1 > THRESHOLD) {
     if(!state1) {
       state1 = true;
-      send_input_msg();
+      changed = true;
     }
   } else {
     if(state1) {
-      state1 = false;
-      send_input_msg();
+      state1 = false;digitalWrite(A0, weight1);
+      changed = true;
     }
   }
 
   if(total2 > THRESHOLD) {
     if(!state2) {
       state2 = true;
-      send_input_msg();
+      changed = true;
     }
   } else {
     if(state2) {
       state2 = false;
-      send_input_msg();
+      changed = true;
     }
   }
 
-  if(millis() - last_send > 1000) {
-    unsigned int w1 = constrain(scale1.get_units(1), 0, 5000);
-    unsigned int w2 = constrain(scale2.get_units(1), 0, 5000);
-
-    Serial.write(1);
-    Serial.write((byte*)&w1, 2);
-    Serial.write((byte*)&w2, 2);
-
-    last_send = millis();
+  if(w1 != weight1) {
+    weight1 = w1;
+    changed = true;
   }
+
+  if(w2 != weight2) {
+    weight2 = w2;
+    changed = true;
+  }
+
+  if(changed) {
+    send_input_msg();
+  }
+  
+  digitalWrite(A0, !w1);
+  digitalWrite(A2, w1);
+  digitalWrite(A5, !w2);
+  digitalWrite(A4, w2);
+
+  delay(15);
 }
