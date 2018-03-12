@@ -202,6 +202,7 @@ class SpikeGame:
             self.round_end = True
             self.wait_for_next_round()
 
+    #FIXME : change this to work with the new custom input
     def wait_for_next_round(self):
         cnt = (not self.player1.is_alive) + (not self.player2.is_alive)
         a = 0
