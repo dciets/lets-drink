@@ -5,6 +5,7 @@ import os
 import controller
 from threading import Thread
 import sys
+import pygame.camera
 
 
 ON_ARCADE = os.getlogin() == 'capra'
@@ -13,6 +14,7 @@ def main():
     pygame.init()
     pygame.display.set_caption("L'ETS Drink")
 
+    pygame.camera.init()
     pygame.font.init()
 
     if ON_ARCADE:
