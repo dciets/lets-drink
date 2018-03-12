@@ -21,6 +21,8 @@ class USB(Controller):
         self.device = serial.Serial(self.port, 115200, timeout=0)
         self.button1 = 0
         self.button2 = 0
+        self.weight1 = 0
+        self.weight2 = 0
 
         Controller.__init__(self)
 
@@ -36,6 +38,7 @@ class USB(Controller):
                 sys.exit(0)
 
         c = self.device.read(1)
+
         if c:
             c = ord(c)
         else:
@@ -44,6 +47,8 @@ class USB(Controller):
         if c & 1 == 0:
             button2 = (c >> 1) & 1
             button1 = (c >> 2) & 1
+            weight2 = (c >> 4) & 1
+            weight1 = (c >> 3) & 1
 
             if button1 != self.button1:
                 self.button1 = button1
@@ -52,14 +57,11 @@ class USB(Controller):
             if button2 != self.button2:
                 self.button2 = button2
                 pygame.event.post(pygame.event.Event(USB.EVENT_TYPES[button2], index=1))
-        else:
-            s = ''
-            while len(s) < 4:
-                s += self.device.read()
 
-            w1 = struct.unpack('H', s[:2])
-            w2 = struct.unpack('H', s[2:])
+            if weight1 != self.weight1:
+                self.weight1 = weight1
+                pygame.event.post(pygame.event.Event(USB.EVENT_TYPES[weight1], index=2))
 
-            pygame.event.post(pygame.event.Event(Controller.WEIGHT, value=(w1, w2)))
-
-        time.sleep(0.01)
+            if weight2 != self.weight2:
+                self.weight2 = weight2
+                pygame.event.post(pygame.event.Event(USB.EVENT_TYPES[weight2], index=3))
