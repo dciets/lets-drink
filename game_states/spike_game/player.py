@@ -12,6 +12,7 @@ class player:
     jump_speed = 0
     gravity = 9800
     is_alive = True
+    touch_the_edge = False
 
     def __init__(self, width, height, start_pos, velx, image, name):
 
@@ -29,9 +30,9 @@ class player:
     #calculating the hitbox with some pixel perfect adjustement
     def get_polygon(self):
         if self.velx > 0:
-            return [(self.x + 5, self.y - 5), (self.x + self.width + 5, self.y + (self.height/2)-5), (self.x + 5, self.y + self.height)]
+            return [(self.x + 10, self.y), (self.x + self.width, self.y + (self.height/2) - 4), (self.x + 10, self.y + self.height - 3)]
         else:
-            return [(self.x + self.width - 10, self.y - 5), (self.x - 15, self.y + (self.height/2)-5), (self.x + self.width - 10, self.y + self.height)]
+            return [(self.x + self.width - 10, self.y), (self.x, self.y + (self.height/2) - 4), (self.x + self.width - 10, self.y + self.height - 3)]
 
     def jump(self):
         self.vely = self.jump_speed
@@ -46,5 +47,13 @@ class player:
         self.x += self.velx
         if self.x < 0 or self.x > max_width - self.width:
             self.velx *= -1
+            self.x = 5 if self.x < 0 else max_width - self.width - 5
             self.image = transform.flip(self.image, True, False)
+            self.touch_the_edge = True
+    
+    def is_on_edge(self):
+        on_edge = self.touch_the_edge
+        if on_edge:
+            self.touch_the_edge = False
+        return on_edge
        

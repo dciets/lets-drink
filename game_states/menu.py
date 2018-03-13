@@ -31,6 +31,6 @@ class Menu:
         for evt in pygame.event.get():
             pass
 
-        if self.s1 and self.s2:
+        if all(btn for btn in self.buttons[2:4]):
             players_name = ("ETS", "ULaval")
             self.game.state = game.SpikeGame(self.game, players_name)

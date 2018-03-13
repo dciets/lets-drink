@@ -102,7 +102,7 @@ class SpikeGame:
             self.update_player(self.player2)
 
         # check if players touch the edges (both touch at the same time)
-        if self.player1.x < 0 or self.player2.x < 0:
+        if self.player1.is_on_edge() and self.player2.is_on_edge() or self.player1.is_on_edge() or self.player2.is_on_edge():
             if self.player1.is_alive and self.player2.is_alive:
                 d = threading.Thread(name='gen_spike', target=self.gen_spikes)
                 d.start()
@@ -111,6 +111,9 @@ class SpikeGame:
         # render our cute image
         self.screen.blit(self.player1.image, self.player1.get_position())
         self.screen.blit(self.player2.image, self.player2.get_position())
+
+        pygame.draw.polygon(self.screen, (123,24,255), self.player1.get_polygon())
+        pygame.draw.polygon(self.screen, (123,234,255), self.player2.get_polygon())
 
         pygame.display.flip()
 
@@ -151,22 +154,24 @@ class SpikeGame:
             h = self.screen_size[1]
 
             max_val = (self.screen_size[1] / self.spike_width) - 3
-            r = randint(min((self.level / 2), max_val - 4), max_val)
+            nb_spike = randint(min(((self.level  + 1)/ 2), max_val - 4), max_val)
+            print(nb_spike)
             self.spike_arr = []
+            random_arr = []
 
-            while len(self.spike_arr) < r :
-                b = randint(1, max_val) * self.spike_width
-                while b in self.spike_arr:
-                    b = randint(1, max_val + 1) * self.spike_width
+            while len(self.spike_arr) < nb_spike * 2 :
+                base = randint(1, max_val) * self.spike_width
+                while base in random_arr:
+                    base = randint(1, max_val + 1) * self.spike_width
                 
-                p = [(0,b),(self.spike_height, b + self.spike_width/2),(0,b + self.spike_width)]
+                random_arr.append(base)
+                p = [(0,base),(self.spike_height, base + self.spike_width/2),(0,base + self.spike_width)]
                 self.spike_arr.append(spike(self.spike_width, self.spike_height, p, self.SPIKE_POSITION[2]))
-                p = [(w,b),(w - self.spike_height, b + self.spike_width/2),(w,b + self.spike_width)]
+                p = [(w,base),(w - self.spike_height, base + self.spike_width/2),(w,base + self.spike_width)]
                 self.spike_arr.append(spike(self.spike_width, self.spike_height, p, self.SPIKE_POSITION[3]))
 
     def game_reset(self):
         self.player1, self.player2 = self.create_players()
-
         self.level = 1
         self.spike_arr = []
         self.static_spike_arr = []
@@ -179,7 +184,7 @@ class SpikeGame:
         p2 = Polygon(self.player2.get_polygon())
 
         for spike in self.static_spike_arr + self.spike_arr:
-            s = Polygon(spike.polygone)
+            s = Polygon(spike.polygon)
             if p1.intersects(s):
                 self.player1.is_alive = False
             if p2.intersects(s):
@@ -202,21 +207,27 @@ class SpikeGame:
             self.round_end = True
             self.wait_for_next_round()
 
-    #FIXME : change this to work with the new custom input
     def wait_for_next_round(self):
         cnt = (not self.player1.is_alive) + (not self.player2.is_alive)
-        a = 0
-        b = 0
+        player1_weight = [False] * 2
+        player2_weight = [False] * 2
+        self.run()
+
         while self.round_end:
-            self.draw_stock()
-            self.run()
-            for evt in pygame.event.get([Controller.WEIGHT]):
-                if evt.type == Controller.WEIGHT and evt.index == 0 and not self.player1.is_alive:
-                    a = 1
-                if evt.type == Controller.WEIGHT and evt.index == 1 and not self.player2.is_alive:
-                    b = 1
-            
-            if cnt - a - b == 0:
+            for evt in pygame.event.get([Controller.BUTTON_PRESSED, Controller.BUTTON_RELEASED]):
+                if evt.type == Controller.BUTTON_RELEASED and evt.index == 2 and not self.player1.is_alive:
+                    player1_weight[0] = True
+                if evt.type == Controller.BUTTON_RELEASED and evt.index == 3 and not self.player2.is_alive:
+                    player2_weight[0] = True
+
+                #button has been released waiting for BUTTON_PRESSED event
+                if player1_weight[0] and evt.type == Controller.BUTTON_PRESSED and evt.index == 2 and not self.player1.is_alive:
+                    player1_weight[1] = True
+                if player2_weight[0] and evt.type == Controller.BUTTON_PRESSED and evt.index == 3 and not self.player2.is_alive:
+                    player2_weight[1] = True
+
+            #if button was released then pressed again
+            if cnt - player1_weight[1] - player2_weight[1] == 0:
                 self.round_end = False
                 self.game_reset()
     
