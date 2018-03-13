@@ -1,3 +1,2 @@
 pygame==1.9.3
 pyserial==3.4
-Shapely==1.6.4.post1
