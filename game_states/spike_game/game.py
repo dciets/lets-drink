@@ -146,8 +146,8 @@ class SpikeGame:
             w = self.screen_size[0]
             h = self.screen_size[1]
 
-            max_val = (self.screen_size[1] / self.spike_width) - 5
-            nb_spike = randint(min((self.level / 2), max_val - 4), max_val)
+            max_val = (self.screen_size[1] / self.spike_width) - 3
+            nb_spike = randint(min((self.level / 2), max_val - 5), max_val)
             self.spike_arr = []
             random_arr = []
 
