@@ -21,7 +21,7 @@ class SpikeGame:
     spike_width = 0
     spike_height = 0
 
-    PLAYER_VELX = 12
+    PLAYER_VELX = 10
 
     PLAYER1_SPRITE = "sprites/spaceship1.png"
     PLAYER2_SPRITE = "sprites/spaceship2.png"
@@ -92,7 +92,7 @@ class SpikeGame:
             if  evt.type == Controller.BUTTON_PRESSED and evt.index == 0:
                 self.player1.jump()
 
-            if  evt.type == Controller.BUTTON_PRESSED and evt.index == 1:
+            if  evt.type == Controller.BUTTON_PRESSED and evt.index == 0:
                 self.player2.jump()
 
         self.is_player_alive()
@@ -111,9 +111,6 @@ class SpikeGame:
         # render our cute image
         self.screen.blit(self.player1.image, self.player1.get_position())
         self.screen.blit(self.player2.image, self.player2.get_position())
-
-        pygame.draw.polygon(self.screen, (123,24,255), self.player1.get_polygon())
-        pygame.draw.polygon(self.screen, (123,234,255), self.player2.get_polygon())
 
         pygame.display.flip()
 
@@ -154,8 +151,7 @@ class SpikeGame:
             h = self.screen_size[1]
 
             max_val = (self.screen_size[1] / self.spike_width) - 3
-            nb_spike = randint(min(((self.level  + 1)/ 2), max_val - 4), max_val)
-            print(nb_spike)
+            nb_spike = randint(int(self.level * 0.1) + 1, min(self.level-1, max_val - 3))
             self.spike_arr = []
             random_arr = []
 
