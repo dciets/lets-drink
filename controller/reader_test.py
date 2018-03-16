@@ -17,8 +17,8 @@ while True:
     c = ord(ser.read(1))
 
     if c & 1 == 0:
-        button2 = (c >> 1) & 1
-        button1 = (c >> 2) & 1
+        button1 = (c >> 1) & 1
+        button2 = (c >> 2) & 1
         weight2 = (c >> 4) & 1
         weight1 = (c >> 3) & 1
 

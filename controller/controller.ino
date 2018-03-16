@@ -1,10 +1,18 @@
 #include <CapacitiveSensor.h>
 
-CapacitiveSensor cs1 = CapacitiveSensor(2, 3); // 1MOhm resistor between pins 4 & 2, pin 2 is sensor pin, add a wire and or foil
-CapacitiveSensor cs2 = CapacitiveSensor(5, 6); // 1MOhm resistor between pins 4 & 6, pin 6 is sensor pin, add a wire and or foil
+CapacitiveSensor cs1 = CapacitiveSensor(2, 4); // 1MOhm resistor between pins 4 & 2, pin 2 is sensor pin, add a wire and or foil
+CapacitiveSensor cs2 = CapacitiveSensor(6, 8); // 1MOhm resistor between pins 4 & 6, pin 6 is sensor pin, add a wire and or foil
 
 // sensor activation threshold
-#define THRESHOLD 250
+#define THRESHOLD 500
+
+#define PIN_LEFT_LED_R A0
+#define PIN_LEFT_LED_G A1
+#define PIN_RIGHT_LED_R A2
+#define PIN_RIGHT_LED_G A3
+
+#define PIN_LEFT_DRINK 10
+#define PIN_RIGHT_DRINK 12
 
 // sensor states
 bool state1, state2;
@@ -19,8 +27,8 @@ void setup() {
   cs1.set_CS_AutocaL_Millis(0xFFFFFFFF);
   cs2.set_CS_AutocaL_Millis(0xFFFFFFFF);
 
-  pinMode(8, INPUT_PULLUP);
-  pinMode(9, INPUT_PULLUP);
+  pinMode(PIN_LEFT_DRINK, INPUT_PULLUP);
+  pinMode(PIN_RIGHT_DRINK, INPUT_PULLUP);
 }
 
 // 00000000
@@ -41,8 +49,8 @@ void loop() {
   long total1 = cs1.capacitiveSensor(15);
   long total2 = cs2.capacitiveSensor(15);
   
-  bool w1 = digitalRead(8);
-  bool w2 = digitalRead(9);
+  bool w1 = digitalRead(PIN_LEFT_DRINK);
+  bool w2 = digitalRead(PIN_RIGHT_DRINK);
 
   if(total1 > THRESHOLD) {
     if(!state1) {
@@ -82,10 +90,10 @@ void loop() {
     send_input_msg();
   }
   
-  digitalWrite(A0, !w1);
-  digitalWrite(A2, w1);
-  digitalWrite(A5, !w2);
-  digitalWrite(A4, w2);
+  digitalWrite(PIN_LEFT_LED_R, !w1);
+  digitalWrite(PIN_LEFT_LED_G, w1);
+  digitalWrite(PIN_RIGHT_LED_R, !w2);
+  digitalWrite(PIN_RIGHT_LED_G, w2);
 
   delay(15);
 }
