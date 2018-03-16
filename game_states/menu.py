@@ -1,6 +1,8 @@
 from controller import Controller
 import pygame
 
+from spike_game import game
+
 class Menu:
     def __init__(self, game):
         self.game = game
@@ -28,3 +30,7 @@ class Menu:
 
         for evt in pygame.event.get():
             pass
+
+        if all(btn for btn in self.buttons[2:4]):
+            players_name = ("ETS", "ULaval")
+            self.game.state = game.SpikeGame(self.game, players_name)

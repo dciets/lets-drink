@@ -12,14 +12,14 @@ ON_ARCADE = os.getlogin() == 'capra'
 
 def main():
     pygame.init()
-    pygame.display.set_caption("L'ETS Drink")
+    pygame.display.set_caption("L'ETS be sobre")
 
     pygame.camera.init()
     pygame.font.init()
 
     if ON_ARCADE:
         ctrl = controller.USB()
-        border = pygame.display.set_mode((game.Game.SCREEN_WIDTH, game.Game.SCREEN_HEIGHT)) #, pygame.FULLSCREEN)
+        border = pygame.display.set_mode((game.Game.SCREEN_WIDTH, game.Game.SCREEN_HEIGHT), pygame.FULLSCREEN) #, pygame.FULLSCREEN)
     else:
         ctrl = controller.Keyboard()
         border = pygame.display.set_mode((game.Game.SCREEN_WIDTH, game.Game.SCREEN_HEIGHT))
