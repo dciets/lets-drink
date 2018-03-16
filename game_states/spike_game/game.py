@@ -92,7 +92,7 @@ class SpikeGame:
             if  evt.type == Controller.BUTTON_PRESSED and evt.index == 0:
                 self.player1.jump()
 
-            if  evt.type == Controller.BUTTON_PRESSED and evt.index == 0:
+            if  evt.type == Controller.BUTTON_PRESSED and evt.index == 1:
                 self.player2.jump()
 
         self.is_player_alive()
