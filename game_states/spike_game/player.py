@@ -11,7 +11,7 @@ class player:
     width = 0
     height = 0
     jump_speed = 0
-    gravity = 9000
+    gravity = 9500
     is_alive = True
     touch_the_edge = False
 
@@ -52,14 +52,13 @@ class player:
             self.image = transform.flip(self.image, True, False)
             self.touch_the_edge = True
             self.update_speed()
-    
+
     def update_speed(self):
         abs_velx = abs(self.velx)
         self.velx += math.log(abs_velx, 2) ** -1 if self.velx > 0 else -math.log(abs_velx, 2) ** -1
-    
+
     def is_on_edge(self):
         on_edge = self.touch_the_edge
         if on_edge:
             self.touch_the_edge = False
         return on_edge
-       

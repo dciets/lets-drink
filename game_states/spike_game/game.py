@@ -21,7 +21,7 @@ class SpikeGame:
     spike_width = 0
     spike_height = 0
 
-    PLAYER_VELX = 10
+    PLAYER_VELX = 7
 
     PLAYER1_SPRITE = "sprites/spaceship1.png"
     PLAYER2_SPRITE = "sprites/spaceship2.png"
@@ -86,7 +86,7 @@ class SpikeGame:
         self.draw_level()
         self.draw_stock()
         self.draw_end_round()
-            
+
         #custom event for the arcade controller (Press W and I on a keyboard)
         for evt in pygame.event.get([Controller.BUTTON_PRESSED, Controller.BUTTON_RELEASED]):
             if  evt.type == Controller.BUTTON_PRESSED and evt.index == 0:
@@ -159,7 +159,7 @@ class SpikeGame:
                 base = randint(1, max_val) * self.spike_width
                 while base in random_arr:
                     base = randint(1, max_val + 1) * self.spike_width
-                
+
                 random_arr.append(base)
                 p = [(0,base),(self.spike_height, base + self.spike_width/2),(0,base + self.spike_width)]
                 self.spike_arr.append(spike(self.spike_width, self.spike_height, p, self.SPIKE_POSITION[2]))
@@ -188,7 +188,7 @@ class SpikeGame:
 
         if not (self.player1.is_alive and self.player2.is_alive) and not self.round_end:
             self.remove_stock()
-        
+
         if(any(x == 0 for x in self.players_stock)):
             self.draw_end_game_msg()
 
@@ -196,10 +196,10 @@ class SpikeGame:
         if not self.round_end:
             if not self.player1.is_alive:
                 self.players_stock[0] = self.players_stock[0] - 1
-        
+
             if not self.player2.is_alive:
                 self.players_stock[1] = self.players_stock[1] - 1
-            
+
             self.round_end = True
             self.wait_for_next_round()
 
@@ -226,7 +226,7 @@ class SpikeGame:
             if cnt - player1_weight[1] - player2_weight[1] == 0:
                 self.round_end = False
                 self.game_reset()
-    
+
     def draw_end_round(self):
         if not (self.player1.is_alive or self.players_stock[0] == 0):
             textsurface = self.font.render(self.player1.name + ' lost one life!', False, (255, 0, 0))
@@ -256,7 +256,7 @@ class SpikeGame:
                     (self.screen_size[0]/2 + (x + 1) * 20 + 3, self.spike_height + 13), 2)
                 pygame.draw.line(self.screen, (255, 0, 0), (self.screen_size[0]/2 + (x + 1) * 20 + 3, self.spike_height + 7),
                     (self.screen_size[0]/2 + (x + 1) * 20 - 3, self.spike_height + 13), 2)
-            
+
             #player 1
             pygame.draw.circle(self.screen, (0,0,255), (self.screen_size[0]/2 - (x + 1) * 20, self.spike_height + 10), 5)
             if x >= self.players_stock[0]:
