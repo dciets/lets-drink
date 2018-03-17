@@ -1,6 +1,7 @@
-import pygame
+from pygame import transform
+import math
 
-class player(pygame.sprite.Sprite):
+class player:
 
     x = 0
     y = 0
@@ -10,13 +11,11 @@ class player(pygame.sprite.Sprite):
     width = 0
     height = 0
     jump_speed = 0
-    gravity = 9800
+    gravity = 9000
     is_alive = True
     touch_the_edge = False
 
     def __init__(self, width, height, start_pos, velx, image, name):
-
-        pygame.sprite.Sprite.__init__(self)
 
         self.width = width
         self.height = height
@@ -24,11 +23,6 @@ class player(pygame.sprite.Sprite):
         self.y = start_pos[1]
         self.velx = velx
         self.image = image
-        self.rect = image.get_rect()
-        self.rect.x = self.x
-        self.rect.y = self.y
-        self.image.set_colorkey((255,255,255))
-        self.mask = pygame.mask.from_surface(self.image)
         self.name = name
 
     def get_position(self):
@@ -49,20 +43,23 @@ class player(pygame.sprite.Sprite):
 
     def update_y_position(self, t):
         self.y = self.y + self.vely * t
-        self.rect.y = self.y
 
     def update_x_position(self, max_width):
         self.x += self.velx
-        self.rect.x = self.x
-
         if self.x < 0 or self.x > max_width - self.width:
             self.velx *= -1
-            self.image = pygame.transform.flip(self.image, True, False)
-            self.mask = pygame.mask.from_surface(self.image)
+            self.x = 5 if self.x < 0 else max_width - self.width - 5
+            self.image = transform.flip(self.image, True, False)
             self.touch_the_edge = True
+            self.update_speed()
+    
+    def update_speed(self):
+        abs_velx = abs(self.velx)
+        self.velx += math.log(abs_velx, 2) ** -1 if self.velx > 0 else -math.log(abs_velx, 2) ** -1
     
     def is_on_edge(self):
         on_edge = self.touch_the_edge
         if on_edge:
             self.touch_the_edge = False
         return on_edge
+       

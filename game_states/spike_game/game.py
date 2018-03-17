@@ -1,5 +1,6 @@
 import player
 from spike import spike
+from shapely.geometry import Polygon
 import pygame
 import math
 import time
@@ -20,7 +21,7 @@ class SpikeGame:
     spike_width = 0
     spike_height = 0
 
-    PLAYER_VELX = 12
+    PLAYER_VELX = 10
 
     PLAYER1_SPRITE = "sprites/spaceship1.png"
     PLAYER2_SPRITE = "sprites/spaceship2.png"
@@ -30,8 +31,6 @@ class SpikeGame:
     spike_arr = []
     static_spike_arr = []
     level = 1
-
-    redraw_player = True
 
     STOCK = 3
     players_stock = [STOCK, STOCK]
@@ -95,7 +94,9 @@ class SpikeGame:
 
             if  evt.type == Controller.BUTTON_PRESSED and evt.index == 1:
                 self.player2.jump()
-        
+
+        self.is_player_alive()
+
         if self.player1.is_alive and self.player2.is_alive:
             self.update_player(self.player1)
             self.update_player(self.player2)
@@ -111,10 +112,6 @@ class SpikeGame:
         self.screen.blit(self.player1.image, self.player1.get_position())
         self.screen.blit(self.player2.image, self.player2.get_position())
 
-        #pygame.draw.polygon(self.screen, (123,24,255), self.player1.get_polygon())
-        #pygame.draw.polygon(self.screen, (123,234,255), self.player2.get_polygon())
-        
-        self.is_player_alive()
         pygame.display.flip()
 
     def update_player(self, player):
@@ -128,7 +125,14 @@ class SpikeGame:
 
     def draw_spikes(self):
         for spike in self.spike_arr + self.static_spike_arr:
-            self.screen.blit(spike.get_spike_image(), (spike.get_x(), spike.get_y()))
+            if spike.position == self.SPIKE_POSITION[0]:
+                self.screen.blit(spike.get_spike_image(), (spike.get_x(), spike.get_y()))
+            elif spike.position == self.SPIKE_POSITION[1]:
+                self.screen.blit(pygame.transform.flip(spike.get_spike_image(), False, True), (spike.get_x(), spike.get_y() - spike.height))
+            elif spike.position == self.SPIKE_POSITION[2]:
+                self.screen.blit(pygame.transform.rotate(spike.get_spike_image(), 90), (spike.get_x(), spike.get_y()))
+            elif spike.position == self.SPIKE_POSITION[3]:
+                self.screen.blit(pygame.transform.rotate(spike.get_spike_image(), 270), (spike.get_x() - spike.height, spike.get_y()))
 
     def gen_static_spike(self):
         width = self.screen_size[0]
@@ -147,7 +151,7 @@ class SpikeGame:
             h = self.screen_size[1]
 
             max_val = (self.screen_size[1] / self.spike_width) - 3
-            nb_spike = randint(min((self.level / 2), max_val - 5), max_val)
+            nb_spike = randint(int(self.level * 0.1) + 1, min(self.level-1, max_val - 3))
             self.spike_arr = []
             random_arr = []
 
@@ -171,14 +175,16 @@ class SpikeGame:
         if any(x == 0 for x in self.players_stock):
             self.players_stock = [self.STOCK, self.STOCK]
 
-    def is_player_alive(self):     
+    def is_player_alive(self):
+        p1 = Polygon(self.player1.get_polygon())
+        p2 = Polygon(self.player2.get_polygon())
+
         for spike in self.static_spike_arr + self.spike_arr:
-            if pygame.sprite.collide_mask(self.player1, spike) != None:
+            s = Polygon(spike.polygon)
+            if p1.intersects(s):
                 self.player1.is_alive = False
-                
-            if pygame.sprite.collide_mask(self.player2, spike) != None:
+            if p2.intersects(s):
                 self.player2.is_alive = False
-                
 
         if not (self.player1.is_alive and self.player2.is_alive) and not self.round_end:
             self.remove_stock()
@@ -201,9 +207,6 @@ class SpikeGame:
         cnt = (not self.player1.is_alive) + (not self.player2.is_alive)
         player1_weight = [False] * 2
         player2_weight = [False] * 2
-        
-        self.update_player(self.player1)
-        self.update_player(self.player2)
         self.run()
 
         while self.round_end:
