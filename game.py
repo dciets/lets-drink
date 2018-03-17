@@ -42,3 +42,8 @@ class Game:
             pygame.display.update()
 
             self.timer.tick(Game.FPS)
+
+    def end_game(self, winner=None):
+        # TODO: add to yaml
+        print winner
+        self.state = menu.Menu(self)
