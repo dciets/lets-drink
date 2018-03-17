@@ -1,36 +1,135 @@
 from controller import Controller
 import pygame
-
+import pygame.gfxdraw
+import yaml
 from spike_game import game
 
 class Menu:
+
+    ITEM_FOREGROUND_COLOR = (100, 150, 255)
+    ITEM_FOREGROUND_COLOR_SELECTED = (255, 255, 255)
+
     def __init__(self, game):
         self.game = game
-
-        self.buttons = [False] * 4
+        self.team1 = 0
+        self.team2 = 0
+        self.teams = yaml.load(open('data/teams.yml').read())
+        self.show_arrows = True
+        self.delay = 500
+        self.current_time = pygame.time.get_ticks()
+        self.change_time = self.current_time + self.delay
+        self.ready = [False, False]
 
     def run(self):
-        textsurface = self.game.font.render('Some Text', False, (255, 0, 0))
-
         self.game.screen.fill((0,0,0))
+        self.current_time = pygame.time.get_ticks()
 
-        self.game.screen.blit(textsurface,(200,200))
+
+        #draws a rectangle across the screen (team selector)
+        w = self.game.screen.get_width()
+        h = 50
+        x = 0
+        y = (self.game.screen.get_height() - h)/2
+        pygame.draw.rect(self.game.screen, (255, 255, 255), (x, y, w, h), 1)
+
+
+        #Prints title "Choose your teams"
+        text = 'Choose your team'
+        textsurface = self.game.title_font.render(text, True, (200, 0, 0))
+        x = (self.game.screen.get_width() - textsurface.get_width())/2
+        y = 0
+        self.game.screen.blit(textsurface, (x, y))
 
         for evt in pygame.event.get([Controller.BUTTON_PRESSED, Controller.BUTTON_RELEASED]):
+            if evt.type == Controller.BUTTON_PRESSED and evt.index == Controller.BUTTON1:
+                if not self.ready[0]:
+                    self.team1 = (self.team1 + 1) % len(self.teams)
+
+            if evt.type == Controller.BUTTON_PRESSED and evt.index == Controller.BUTTON2:
+                if not self.ready[1]:
+                    self.team2 = (self.team2 + 1) % len(self.teams)
+
             if evt.type == Controller.BUTTON_PRESSED:
-                self.buttons[evt.index] = True
+                if evt.index == Controller.DRINK1:
+                    self.ready[0] = True
+
+                if evt.index == Controller.DRINK2:
+                    self.ready[1] = True
 
             if evt.type == Controller.BUTTON_RELEASED:
-                self.buttons[evt.index] = False
+                if evt.index == Controller.DRINK1:
+                    self.ready[0] = False
+                    self.couting = False
+
+                if evt.index == Controller.DRINK2:
+                    self.ready[1] = False
+                    self.couting = False
 
 
-        for i in range(len(self.buttons)):
-            if self.buttons[i]:
-                pygame.draw.rect(self.game.screen, (0, 0, 255), (50 + i * 50, 50, 50, 50))
+        #prints team 1' name
+        team_range = map(lambda x: x%len(self.teams), range(self.team1 - 4, self.team1 + 5))
+        for i, team in enumerate(team_range):
+            team_name = list(self.teams)[team]
+            text = '{} - {} pts'.format(team_name, self.teams[team_name])
+            color = Menu.ITEM_FOREGROUND_COLOR_SELECTED if team == self.team1 else Menu.ITEM_FOREGROUND_COLOR
+            textsurface = self.game.font.render(text, True, color)
+            x = 1*self.game.screen.get_width()/4 - textsurface.get_width()/2
+            y = self.game.screen.get_height()/2 - (4 - i)*45 - textsurface.get_height()/2
+            self.game.screen.blit(textsurface, (x, y))
+
+
+        if self.ready[0]:
+            ts1 = self.game.title_font.render("READY", True, (0, 255, 0))
+            ts2 = self.game.title_font.render("READY", True, (0, 0, 0))
+            x, y = (self.game.screen.get_width() / 4 - ts1.get_width()/2, self.game.screen.get_height() / 2 - ts1.get_height()/2)
+            for dx in [-5, 0, 5]:
+                for dy in [-5, 0, 5]:
+                    self.game.screen.blit(ts2, (x + dx, y + dy))
+            self.game.screen.blit(ts1, (x, y))
+
+
+        #prints team 2's name
+        team_range = map(lambda x: x%len(self.teams), range(self.team2 - 4, self.team2 + 5))
+        for i, team in enumerate(team_range):
+            team_name = list(self.teams)[team]
+            text = '{} - {} pts'.format(team_name, self.teams[team_name])
+            color = Menu.ITEM_FOREGROUND_COLOR_SELECTED if team == self.team2 else Menu.ITEM_FOREGROUND_COLOR
+            textsurface = self.game.font.render(text, True, color)
+            x = 3*self.game.screen.get_width()/4 - textsurface.get_width()/2
+            y = self.game.screen.get_height()/2 - (4 - i)*45 - textsurface.get_height()/2
+            self.game.screen.blit(textsurface, (x, y))
+
+        if self.ready[1]:
+            ts1 = self.game.title_font.render("READY", True, (0, 255, 0))
+            ts2 = self.game.title_font.render("READY", True, (0, 0, 0))
+            x, y = (3*self.game.screen.get_width() / 4 - ts1.get_width()/2, self.game.screen.get_height() / 2 - ts1.get_height()/2)
+            for dx in [-5, 0, 5]:
+                for dy in [-5, 0, 5]:
+                    self.game.screen.blit(ts2, (x + dx, y + dy))
+            self.game.screen.blit(ts1, (x, y))
+
+        #draws the flashing arrows
+        if self.current_time >= self.change_time:
+            self.change_time = self.current_time + self.delay
+            self.show_arrows = not self.show_arrows
+
+        if self.show_arrows:
+            w = 50
+            h = 15
+            x = 1*self.game.screen.get_width()/4 - w/2
+            y = self.game.screen.get_height() - h
+            pygame.gfxdraw.filled_polygon(self.game.screen, [(x, y), (x + w, y), (x + w/2, y + h)], (255, 255, 255))
+            pygame.gfxdraw.aapolygon(self.game.screen, [(x, y), (x + w, y), (x + w/2, y + h)], (255, 255, 255))
+
+            x = 3*self.game.screen.get_width()/4 - w/2
+            pygame.gfxdraw.filled_polygon(self.game.screen, [(x, y), (x + w, y), (x + w/2, y + h)], (255, 255, 255))
+            pygame.gfxdraw.aapolygon(self.game.screen, [(x, y), (x + w, y), (x + w/2, y + h)], (255, 255, 255))
+
 
         for evt in pygame.event.get():
             pass
 
-        if all(btn for btn in self.buttons[2:4]):
-            players_name = ("ETS", "ULaval")
-            self.game.state = game.SpikeGame(self.game, players_name)
+        if all(self.ready):
+            # TODO: Timer
+            # self.counting = pygame.time.get_ticks()
+            self.game.state = game.SpikeGame(self.game, (self.teams.keys()[self.team1], self.teams.keys()[self.team2]))
