@@ -1,4 +1,5 @@
 import pygame
+from controller import Controller
 
 class timer:
 
@@ -26,6 +27,10 @@ class timer:
         
         if self.sec == 0:
             self.game.state = self.callback
+        
+        #REEEEEEEEEEEEEEEEEEEEEEEE
+        for evt in pygame.event.get([Controller.BUTTON_PRESSED, Controller.BUTTON_RELEASED]):
+            pass
 
     def draw_timer(self):
         textsurface = self.font.render(str(self.sec), False, (255,128,0))
