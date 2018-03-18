@@ -180,7 +180,7 @@ class SpikeGame:
                 self.spike_arr.append(spike(self.spike_width, self.spike_height, p, self.SPIKE_POSITION[3]))
 
     def game_reset(self):
-        
+
         self.player1, self.player2 = self.create_players()
         self.level = 1
         self.spike_arr = []
@@ -205,14 +205,14 @@ class SpikeGame:
 
         if not (self.player1.is_alive and self.player2.is_alive) and not self.round_end:
             self.remove_stock()
-    
+
     def end_game(self):
         if not self.players_stock[0] == 0:
-                self.game.end_game(self.player1.name)
+            self.game.end_game(self.players_name, [True, False])
         elif not self.players_stock[1] == 0:
-            self.game.end_game(self.player2.name)
+            self.game.end_game(self.players_name, [False, True])
         else:
-            self.game.end_game()
+            self.game.end_game(self.players_name, [False, False])
 
     def remove_stock(self):
         if not self.round_end:
