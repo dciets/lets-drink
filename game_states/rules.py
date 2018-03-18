@@ -26,6 +26,10 @@ class rules:
         
         if self.player1_ready and self.player2_ready:
             self.game.set_timer_state(self.callback)
+        
+        #REEEEEEEEEEEEEEEEEEEEEEEE
+        for evt in pygame.event.get([Controller.BUTTON_PRESSED, Controller.BUTTON_RELEASED]):
+            pass
 
     def draw_rules(self):
         textsurface = self.font.render(str(self.text), False, (0,255,128))

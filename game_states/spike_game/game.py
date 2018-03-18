@@ -14,7 +14,6 @@ class SpikeGame:
     background_color = (0, 0 ,0)
     start = 0
     font = ""
-    clock = 0
     round_end = False
     screen = ""
 
@@ -30,10 +29,8 @@ class SpikeGame:
 
     spike_arr = []
     static_spike_arr = []
-    level = 1
 
     STOCK = 3
-    players_stock = [STOCK, STOCK]
 
     WIDTH_MAGIC_NUMBER = 0.0546875
     HEIGHT_MAGIC_NUMBER = 0.064814815
@@ -47,13 +44,14 @@ class SpikeGame:
         self.game = game
         self.start = time.time()
         self.font = pygame.font.SysFont('Comic Sans MS', 72)
-        self.clock = pygame.time.Clock()
         self.screen_size = [self.screen.get_width(), self.screen.get_height()]
         self.players_name = players_name
         self.spike_width = self.screen_size[0] / 20
         self.spike_height = self.screen_size[1] / 20
         self.player1, self.player2 = self.create_players()
         self.gen_static_spike()
+        self.players_stock = [self.STOCK, self.STOCK]
+        self.level = 1
 
         self.background = background(self.screen.get_width(), self.screen.get_height())
 
@@ -180,7 +178,7 @@ class SpikeGame:
                 self.spike_arr.append(spike(self.spike_width, self.spike_height, p, self.SPIKE_POSITION[3]))
 
     def game_reset(self):
-
+        
         self.player1, self.player2 = self.create_players()
         self.level = 1
         self.spike_arr = []
@@ -205,14 +203,14 @@ class SpikeGame:
 
         if not (self.player1.is_alive and self.player2.is_alive) and not self.round_end:
             self.remove_stock()
-
+    
     def end_game(self):
         if not self.players_stock[0] == 0:
-            self.game.end_game(self.players_name, [True, False])
+                self.game.end_game(self.player1.name)
         elif not self.players_stock[1] == 0:
-            self.game.end_game(self.players_name, [False, True])
+            self.game.end_game(self.player2.name)
         else:
-            self.game.end_game(self.players_name, [False, False])
+            self.game.end_game()
 
     def remove_stock(self):
         if not self.round_end:
