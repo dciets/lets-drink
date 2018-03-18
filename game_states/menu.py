@@ -2,7 +2,8 @@ from controller import Controller
 import pygame
 import pygame.gfxdraw
 import yaml
-from spike_game import game
+from spike_game import spike_game
+from hyper_stacker import hyper_stacker
 from game_states import rules
 
 class Menu:
@@ -133,6 +134,10 @@ class Menu:
         if all(self.ready):
             # TODO: Timer
             # self.counting = pygame.time.get_ticks()
-            spikegame = game.SpikeGame(self.game, (self.teams.keys()[self.team1], self.teams.keys()[self.team2]))
-            spikegame.draw_bg()
-            self.game.state = rules.rules(self.game, "touche pa o pik si tu meur tu bwer", spikegame)
+            if False:
+                spikegame = spike_game.SpikeGame(self.game, (self.teams.keys()[self.team1], self.teams.keys()[self.team2]))
+                spikegame.draw_bg()
+                self.game.state = rules.rules(self.game, "touche pa o pik si tu meur tu bwer", spikegame)
+            else:
+                hyperstacker = hyper_stacker.HyperStacker(self.game, (self.teams.keys()[self.team1], self.teams.keys()[self.team2]))
+                self.game.state = rules.rules(self.game, "fais une belle tour merci", hyperstacker)

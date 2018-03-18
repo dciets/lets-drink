@@ -161,7 +161,7 @@ class HyperStacker:
         if self.current_shape1.x + self.current_shape1.width >= 363 or self.current_shape1.x < 0:
             self.current_shape1.going_right = not self.current_shape1.going_right
 
-        if self.current_shape2.x + self.current_shape1.width >= 750 or self.current_shape2.x < 387:
+        if self.current_shape2.x + self.current_shape2.width >= 750 or self.current_shape2.x < 387:
             self.current_shape2.going_right = not self.current_shape2.going_right
 
         self.current_shape1.update()
@@ -228,4 +228,4 @@ class HyperStacker:
             y = 200
             self.game.screen.blit(textsurface, (x, y))
 
-            self.game.end_game(winner=self.team1 if self.score1 > self.score2 else self.team2 if self.team2 > self.team1 else None)
+            self.game.end_game(players=[self.team1, self.team2], winners=[self.score1 > self.score2, self.score2 > self.score1])
