@@ -1,16 +1,18 @@
 import pygame
 from pygame.rect import Rect
 from game_states import menu
+from game_states import timer
+from game_states import selfie
 from pygame.time import Clock
 import sys
 
 
 class Game:
-    FPS = 30
+    FPS = 40
 
-    SCREEN_WIDTH = 800
-    SCREEN_HEIGHT = 600
-    BORDER_SIZE = 25
+    SCREEN_WIDTH = 1024
+    SCREEN_HEIGHT = 768
+    BORDER_SIZE = 10
     GAME_WIDTH = SCREEN_WIDTH - 2 * BORDER_SIZE
     GAME_HEIGHT = SCREEN_HEIGHT - 2 * BORDER_SIZE
     GAME_TOP = BORDER_SIZE
@@ -43,7 +45,10 @@ class Game:
 
             self.timer.tick(Game.FPS)
 
-    def end_game(self, winner=None):
+    def end_game(self, players=['None', 'None'], winners=[False, False]):
         # TODO: add to yaml
-        print winner
-        self.state = menu.Menu(self)
+        # self.state = menu.Menu(self)
+        self.state = selfie.Selfie(self, players, winners)
+
+    def set_timer_state(self, callback):
+        self.state = timer.timer(self, 3, callback)

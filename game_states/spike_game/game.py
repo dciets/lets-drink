@@ -1,5 +1,6 @@
 import player
 from spike import spike
+from shapely.geometry import Polygon
 import pygame
 import math
 import time
@@ -20,7 +21,7 @@ class SpikeGame:
     spike_width = 0
     spike_height = 0
 
-    PLAYER_VELX = 12
+    PLAYER_VELX = 7
 
     PLAYER1_SPRITE = "sprites/spaceship1.png"
     PLAYER2_SPRITE = "sprites/spaceship2.png"
@@ -30,8 +31,6 @@ class SpikeGame:
     spike_arr = []
     static_spike_arr = []
     level = 1
-
-    redraw_player = True
 
     STOCK = 3
     players_stock = [STOCK, STOCK]
@@ -45,13 +44,14 @@ class SpikeGame:
     def __init__(self, game, players_name):
 
         self.screen = game.screen
+        self.game = game
         self.start = time.time()
         self.font = pygame.font.SysFont('Comic Sans MS', 72)
         self.clock = pygame.time.Clock()
         self.screen_size = [self.screen.get_width(), self.screen.get_height()]
         self.players_name = players_name
-        self.spike_width = self.screen_size[0] / 15
-        self.spike_height = self.screen_size[1] / 15
+        self.spike_width = self.screen_size[0] / 20
+        self.spike_height = self.screen_size[1] / 20
         self.player1, self.player2 = self.create_players()
         self.gen_static_spike()
 
@@ -78,6 +78,17 @@ class SpikeGame:
 
         return player1, player2
 
+    def draw_bg(self):
+        self.spike_arr = []
+        self.screen.fill([255, 255, 255])
+        self.screen.blit(self.background.image, self.background.rect)
+
+        self.draw_spikes()
+        self.draw_level()
+        self.draw_stock()
+        self.draw_end_round()
+        self.draw_end_game_msg()
+
     def run(self):
 
         self.screen.fill([255, 255, 255])
@@ -87,7 +98,8 @@ class SpikeGame:
         self.draw_level()
         self.draw_stock()
         self.draw_end_round()
-            
+        self.draw_end_game_msg()
+
         #custom event for the arcade controller (Press W and I on a keyboard)
         for evt in pygame.event.get([Controller.BUTTON_PRESSED, Controller.BUTTON_RELEASED]):
             if  evt.type == Controller.BUTTON_PRESSED and evt.index == 0:
@@ -95,7 +107,9 @@ class SpikeGame:
 
             if  evt.type == Controller.BUTTON_PRESSED and evt.index == 1:
                 self.player2.jump()
-        
+
+        self.is_player_alive()
+
         if self.player1.is_alive and self.player2.is_alive:
             self.update_player(self.player1)
             self.update_player(self.player2)
@@ -111,10 +125,6 @@ class SpikeGame:
         self.screen.blit(self.player1.image, self.player1.get_position())
         self.screen.blit(self.player2.image, self.player2.get_position())
 
-        #pygame.draw.polygon(self.screen, (123,24,255), self.player1.get_polygon())
-        #pygame.draw.polygon(self.screen, (123,234,255), self.player2.get_polygon())
-        
-        self.is_player_alive()
         pygame.display.flip()
 
     def update_player(self, player):
@@ -128,7 +138,14 @@ class SpikeGame:
 
     def draw_spikes(self):
         for spike in self.spike_arr + self.static_spike_arr:
-            self.screen.blit(spike.get_spike_image(), (spike.get_x(), spike.get_y()))
+            if spike.position == self.SPIKE_POSITION[0]:
+                self.screen.blit(spike.get_spike_image(), (spike.get_x(), spike.get_y()))
+            elif spike.position == self.SPIKE_POSITION[1]:
+                self.screen.blit(pygame.transform.flip(spike.get_spike_image(), False, True), (spike.get_x(), spike.get_y() - spike.height))
+            elif spike.position == self.SPIKE_POSITION[2]:
+                self.screen.blit(pygame.transform.rotate(spike.get_spike_image(), 90), (spike.get_x(), spike.get_y()))
+            elif spike.position == self.SPIKE_POSITION[3]:
+                self.screen.blit(pygame.transform.rotate(spike.get_spike_image(), 270), (spike.get_x() - spike.height, spike.get_y()))
 
     def gen_static_spike(self):
         width = self.screen_size[0]
@@ -147,7 +164,7 @@ class SpikeGame:
             h = self.screen_size[1]
 
             max_val = (self.screen_size[1] / self.spike_width) - 3
-            nb_spike = randint(min((self.level / 2), max_val - 5), max_val)
+            nb_spike = randint(int(self.level * 0.1) + 1, min(self.level-1, max_val - 3))
             self.spike_arr = []
             random_arr = []
 
@@ -155,7 +172,7 @@ class SpikeGame:
                 base = randint(1, max_val) * self.spike_width
                 while base in random_arr:
                     base = randint(1, max_val + 1) * self.spike_width
-                
+
                 random_arr.append(base)
                 p = [(0,base),(self.spike_height, base + self.spike_width/2),(0,base + self.spike_width)]
                 self.spike_arr.append(spike(self.spike_width, self.spike_height, p, self.SPIKE_POSITION[2]))
@@ -163,37 +180,48 @@ class SpikeGame:
                 self.spike_arr.append(spike(self.spike_width, self.spike_height, p, self.SPIKE_POSITION[3]))
 
     def game_reset(self):
+
         self.player1, self.player2 = self.create_players()
         self.level = 1
         self.spike_arr = []
         self.static_spike_arr = []
         self.gen_static_spike()
         if any(x == 0 for x in self.players_stock):
-            self.players_stock = [self.STOCK, self.STOCK]
+            self.end_game()
+        else:
+            self.draw_bg()
+            self.game.set_timer_state(self)
 
-    def is_player_alive(self):     
+    def is_player_alive(self):
+        p1 = Polygon(self.player1.get_polygon())
+        p2 = Polygon(self.player2.get_polygon())
+
         for spike in self.static_spike_arr + self.spike_arr:
-            if pygame.sprite.collide_mask(self.player1, spike) != None:
+            s = Polygon(spike.polygon)
+            if p1.intersects(s):
                 self.player1.is_alive = False
-                
-            if pygame.sprite.collide_mask(self.player2, spike) != None:
+            if p2.intersects(s):
                 self.player2.is_alive = False
-                
 
         if not (self.player1.is_alive and self.player2.is_alive) and not self.round_end:
             self.remove_stock()
-        
-        if(any(x == 0 for x in self.players_stock)):
-            self.draw_end_game_msg()
+
+    def end_game(self):
+        if not self.players_stock[0] == 0:
+            self.game.end_game(self.players_name, [True, False])
+        elif not self.players_stock[1] == 0:
+            self.game.end_game(self.players_name, [False, True])
+        else:
+            self.game.end_game(self.players_name, [False, False])
 
     def remove_stock(self):
         if not self.round_end:
             if not self.player1.is_alive:
                 self.players_stock[0] = self.players_stock[0] - 1
-        
+
             if not self.player2.is_alive:
                 self.players_stock[1] = self.players_stock[1] - 1
-            
+
             self.round_end = True
             self.wait_for_next_round()
 
@@ -201,9 +229,6 @@ class SpikeGame:
         cnt = (not self.player1.is_alive) + (not self.player2.is_alive)
         player1_weight = [False] * 2
         player2_weight = [False] * 2
-        
-        self.update_player(self.player1)
-        self.update_player(self.player2)
         self.run()
 
         while self.round_end:
@@ -223,7 +248,7 @@ class SpikeGame:
             if cnt - player1_weight[1] - player2_weight[1] == 0:
                 self.round_end = False
                 self.game_reset()
-    
+
     def draw_end_round(self):
         if not (self.player1.is_alive or self.players_stock[0] == 0):
             textsurface = self.font.render(self.player1.name + ' lost one life!', False, (255, 0, 0))
@@ -253,7 +278,7 @@ class SpikeGame:
                     (self.screen_size[0]/2 + (x + 1) * 20 + 3, self.spike_height + 13), 2)
                 pygame.draw.line(self.screen, (255, 0, 0), (self.screen_size[0]/2 + (x + 1) * 20 + 3, self.spike_height + 7),
                     (self.screen_size[0]/2 + (x + 1) * 20 - 3, self.spike_height + 13), 2)
-            
+
             #player 1
             pygame.draw.circle(self.screen, (0,0,255), (self.screen_size[0]/2 - (x + 1) * 20, self.spike_height + 10), 5)
             if x >= self.players_stock[0]:
