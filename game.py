@@ -2,6 +2,7 @@ import pygame
 from pygame.rect import Rect
 from game_states import menu
 from game_states import timer
+from game_states import selfie
 from pygame.time import Clock
 import sys
 
@@ -44,10 +45,10 @@ class Game:
 
             self.timer.tick(Game.FPS)
 
-    def end_game(self, winner=None):
+    def end_game(self, players=['None', 'None'], winners=[False, False]):
         # TODO: add to yaml
-        print winner
-        self.state = menu.Menu(self)
-    
+        # self.state = menu.Menu(self)
+        self.state = selfie.Selfie(self, players, winners)
+
     def set_timer_state(self, callback):
         self.state = timer.timer(self, 3, callback)
