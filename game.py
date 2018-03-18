@@ -1,6 +1,7 @@
 import pygame
 from pygame.rect import Rect
 from game_states import menu
+from game_states import timer
 from pygame.time import Clock
 import sys
 
@@ -47,3 +48,6 @@ class Game:
         # TODO: add to yaml
         print winner
         self.state = menu.Menu(self)
+    
+    def set_timer_state(self, callback):
+        self.state = timer.timer(self, 3, callback)
