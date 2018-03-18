@@ -30,10 +30,8 @@ class SpikeGame:
 
     spike_arr = []
     static_spike_arr = []
-    level = 1
 
     STOCK = 3
-    players_stock = [STOCK, STOCK]
 
     WIDTH_MAGIC_NUMBER = 0.0546875
     HEIGHT_MAGIC_NUMBER = 0.064814815
@@ -54,6 +52,8 @@ class SpikeGame:
         self.spike_height = self.screen_size[1] / 20
         self.player1, self.player2 = self.create_players()
         self.gen_static_spike()
+        self.players_stock = [self.STOCK, self.STOCK]
+        self.level = 1
 
         self.background = background(self.screen.get_width(), self.screen.get_height())
 
