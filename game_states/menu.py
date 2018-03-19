@@ -2,7 +2,7 @@ from controller import Controller
 import pygame
 import pygame.gfxdraw
 import yaml
-from spike_game import game
+from spike_game import spike_game
 from game_states import rules
 
 class Menu:
