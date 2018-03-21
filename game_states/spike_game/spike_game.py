@@ -52,8 +52,9 @@ class SpikeGame:
         self.gen_static_spike()
         self.players_stock = [self.STOCK, self.STOCK]
         self.level = 1
-
         self.background = background(self.screen.get_width(), self.screen.get_height())
+
+        self.draw_bg()
 
     def create_players(self):
 
@@ -206,9 +207,9 @@ class SpikeGame:
     
     def end_game(self):
         if not self.players_stock[0] == 0:
-                self.game.end_game(self.player1.name)
+                self.game.end_game(list(self.players_name), [True, False])
         elif not self.players_stock[1] == 0:
-            self.game.end_game(self.player2.name)
+            self.game.end_game(list(self.players_name), [False, True])
         else:
             self.game.end_game()
 
