@@ -5,6 +5,7 @@ import pygame
 import math
 import time
 import threading
+from heart import Heart
 from random import randint
 from controller import Controller
 from background import background
@@ -20,7 +21,7 @@ class SpikeGame:
     spike_width = 0
     spike_height = 0
 
-    PLAYER_VELX = 7
+    PLAYER_VELX = 10
 
     PLAYER1_SPRITE = "sprites/spaceship1.png"
     PLAYER2_SPRITE = "sprites/spaceship2.png"
@@ -52,8 +53,9 @@ class SpikeGame:
         self.gen_static_spike()
         self.players_stock = [self.STOCK, self.STOCK]
         self.level = 1
-
         self.background = background(self.screen.get_width(), self.screen.get_height())
+
+        self.draw_bg()
 
     def create_players(self):
 
@@ -206,9 +208,9 @@ class SpikeGame:
     
     def end_game(self):
         if not self.players_stock[0] == 0:
-                self.game.end_game(self.player1.name)
+                self.game.end_game(list(self.players_name), [True, False])
         elif not self.players_stock[1] == 0:
-            self.game.end_game(self.player2.name)
+            self.game.end_game(list(self.players_name), [False, True])
         else:
             self.game.end_game()
 
@@ -270,17 +272,13 @@ class SpikeGame:
     def draw_stock(self):
         for x in xrange(self.STOCK):
             #player 2
-            pygame.draw.circle(self.screen, (0,0,255), (self.screen_size[0]/2 + (x + 1) * 20, self.spike_height + 10), 5)
             if x >= self.players_stock[1]:
-                pygame.draw.line(self.screen, (255, 0, 0), (self.screen_size[0]/2 + (x + 1) * 20 - 3, self.spike_height + 7),
-                    (self.screen_size[0]/2 + (x + 1) * 20 + 3, self.spike_height + 13), 2)
-                pygame.draw.line(self.screen, (255, 0, 0), (self.screen_size[0]/2 + (x + 1) * 20 + 3, self.spike_height + 7),
-                    (self.screen_size[0]/2 + (x + 1) * 20 - 3, self.spike_height + 13), 2)
+                Heart(self.screen_size[0]/2 + (x + 1) * 20, self.spike_height + 10, (200, 0, 0)).draw(self.screen, False)
+            else:
+                Heart(self.screen_size[0]/2 + (x + 1) * 20, self.spike_height + 10, (200, 0, 0)).draw(self.screen, True)
 
             #player 1
-            pygame.draw.circle(self.screen, (0,0,255), (self.screen_size[0]/2 - (x + 1) * 20, self.spike_height + 10), 5)
             if x >= self.players_stock[0]:
-                pygame.draw.line(self.screen, (255, 0, 0), (self.screen_size[0]/2 - (x + 1) * 20 - 3, self.spike_height + 7),
-                    (self.screen_size[0]/2 - (x + 1) * 20 + 3, self.spike_height + 13), 2)
-                pygame.draw.line(self.screen, (255, 0, 0), (self.screen_size[0]/2 - (x + 1) * 20 + 3, self.spike_height + 7),
-                    (self.screen_size[0]/2 - (x + 1) * 20 - 3, self.spike_height + 13), 2)
+                Heart(self.screen_size[0]/2 - (x + 2) * 20, self.spike_height + 10, (200, 0, 0)).draw(self.screen, False)
+            else:
+                Heart(self.screen_size[0]/2 - (x + 2) * 20, self.spike_height + 10, (200, 0, 0)).draw(self.screen, True)

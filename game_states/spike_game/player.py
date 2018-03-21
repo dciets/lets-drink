@@ -11,7 +11,7 @@ class player:
     width = 0
     height = 0
     jump_speed = 0
-    gravity = 9500
+    gravity = 9800
     is_alive = True
     touch_the_edge = False
 

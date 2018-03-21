@@ -131,8 +131,7 @@ class Menu:
             pass
 
         if all(self.ready):
-            # TODO: Timer
-            # self.counting = pygame.time.get_ticks()
+
             spikegame = spike_game.SpikeGame(self.game, (self.teams.keys()[self.team1], self.teams.keys()[self.team2]))
-            spikegame.draw_bg()
+            #TODO nice rule message
             self.game.state = rules.rules(self.game, "touche pa o pik si tu meur tu bwer", spikegame)

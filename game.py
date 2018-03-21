@@ -1,4 +1,5 @@
 import pygame
+from yaml import load, dump
 from pygame.rect import Rect
 from game_states import menu
 from game_states import timer
@@ -46,9 +47,28 @@ class Game:
             self.timer.tick(Game.FPS)
 
     def end_game(self, players=['None', 'None'], winners=[False, False]):
-        # TODO: add to yaml
-        # self.state = menu.Menu(self)
+
+        winner = False
+        if winners[0]:
+            winner = players[0]
+        elif winners[1]:
+            winner = players[1]
+            
+        self.update_yaml(winner)
+
         self.state = selfie.Selfie(self, players, winners)
 
     def set_timer_state(self, callback):
         self.state = timer.timer(self, 3, callback)
+
+    def update_yaml(self, winner):
+
+        if not winner:
+            return
+
+        stream = file('data/teams.yml', 'r')
+        teams = load(stream)
+        teams[winner] += 1
+
+        stream = file('data/teams.yml', 'w')
+        dump(teams, stream)
