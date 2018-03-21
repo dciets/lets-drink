@@ -20,7 +20,7 @@ class SpikeGame:
     spike_width = 0
     spike_height = 0
 
-    PLAYER_VELX = 7
+    PLAYER_VELX = 10
 
     PLAYER1_SPRITE = "sprites/spaceship1.png"
     PLAYER2_SPRITE = "sprites/spaceship2.png"
