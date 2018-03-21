@@ -48,8 +48,12 @@ class Game:
 
     def end_game(self, players=['None', 'None'], winners=[False, False]):
 
-        winner = players[[i for i,x in enumerate(winners) if x][0]]
-        print "the winner is " + winner
+        winner = False
+        if winners[0]:
+            winner = players[0]
+        elif winners[1]:
+            winner = players[1]
+            
         self.update_yaml(winner)
 
         self.state = selfie.Selfie(self, players, winners)
