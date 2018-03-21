@@ -5,6 +5,7 @@ import pygame
 import math
 import time
 import threading
+from heart import Heart
 from random import randint
 from controller import Controller
 from background import background
@@ -271,17 +272,13 @@ class SpikeGame:
     def draw_stock(self):
         for x in xrange(self.STOCK):
             #player 2
-            pygame.draw.circle(self.screen, (0,0,255), (self.screen_size[0]/2 + (x + 1) * 20, self.spike_height + 10), 5)
             if x >= self.players_stock[1]:
-                pygame.draw.line(self.screen, (255, 0, 0), (self.screen_size[0]/2 + (x + 1) * 20 - 3, self.spike_height + 7),
-                    (self.screen_size[0]/2 + (x + 1) * 20 + 3, self.spike_height + 13), 2)
-                pygame.draw.line(self.screen, (255, 0, 0), (self.screen_size[0]/2 + (x + 1) * 20 + 3, self.spike_height + 7),
-                    (self.screen_size[0]/2 + (x + 1) * 20 - 3, self.spike_height + 13), 2)
+                Heart(self.screen_size[0]/2 + (x + 1) * 20, self.spike_height + 10, (200, 0, 0)).draw(self.screen, False)
+            else:
+                Heart(self.screen_size[0]/2 + (x + 1) * 20, self.spike_height + 10, (200, 0, 0)).draw(self.screen, True)
 
             #player 1
-            pygame.draw.circle(self.screen, (0,0,255), (self.screen_size[0]/2 - (x + 1) * 20, self.spike_height + 10), 5)
             if x >= self.players_stock[0]:
-                pygame.draw.line(self.screen, (255, 0, 0), (self.screen_size[0]/2 - (x + 1) * 20 - 3, self.spike_height + 7),
-                    (self.screen_size[0]/2 - (x + 1) * 20 + 3, self.spike_height + 13), 2)
-                pygame.draw.line(self.screen, (255, 0, 0), (self.screen_size[0]/2 - (x + 1) * 20 + 3, self.spike_height + 7),
-                    (self.screen_size[0]/2 - (x + 1) * 20 - 3, self.spike_height + 13), 2)
+                Heart(self.screen_size[0]/2 - (x + 2) * 20, self.spike_height + 10, (200, 0, 0)).draw(self.screen, False)
+            else:
+                Heart(self.screen_size[0]/2 - (x + 2) * 20, self.spike_height + 10, (200, 0, 0)).draw(self.screen, True)

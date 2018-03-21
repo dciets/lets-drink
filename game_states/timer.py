@@ -19,7 +19,7 @@ class timer:
     def run(self):
         time_now = pygame.time.get_ticks()
         # "erase" the previous frame
-        self.screen.fill(pygame.Color("black"), (self.timer_x, self.timer_y, 25, 50))
+        self.screen.fill(pygame.Color("black"), (self.timer_x - 25, self.timer_y, 50, 50))
         self.draw_timer()
         if time_now - self.current_time >= self.delay:
             self.current_time = pygame.time.get_ticks()
@@ -33,5 +33,5 @@ class timer:
             pass
 
     def draw_timer(self):
-        textsurface = self.font.render(str(self.sec), False, (255,128,0))
-        self.screen.blit(textsurface, (self.timer_x, self.timer_y))
+        textsurface = self.font.render(str(self.sec), False, (200,0,0))
+        self.screen.blit(textsurface, (self.timer_x - textsurface.get_width() / 2, self.timer_y))
