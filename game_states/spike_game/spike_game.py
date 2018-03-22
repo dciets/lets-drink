@@ -55,7 +55,7 @@ class SpikeGame:
         self.level = 1
         self.background = background(self.screen.get_width(), self.screen.get_height())
 
-        self.draw_bg()
+        self.draw()
 
     def create_players(self):
 
@@ -78,7 +78,7 @@ class SpikeGame:
 
         return player1, player2
 
-    def draw_bg(self):
+    def draw(self):
         self.spike_arr = []
         self.screen.fill([255, 255, 255])
         self.screen.blit(self.background.image, self.background.rect)
@@ -97,8 +97,6 @@ class SpikeGame:
         self.draw_spikes()
         self.draw_level()
         self.draw_stock()
-        self.draw_end_round()
-        self.draw_end_game_msg()
 
         #custom event for the arcade controller (Press W and I on a keyboard)
         for evt in pygame.event.get([Controller.BUTTON_PRESSED, Controller.BUTTON_RELEASED]):
@@ -125,6 +123,9 @@ class SpikeGame:
         self.screen.blit(self.player1.image, self.player1.get_position())
         self.screen.blit(self.player2.image, self.player2.get_position())
 
+        self.draw_end_round()
+        self.draw_end_game_msg()
+
         pygame.display.flip()
 
     def update_player(self, player):
@@ -133,8 +134,11 @@ class SpikeGame:
         player.update_x_position(self.screen_size[0])
 
     def draw_level(self):
-        level_txt = self.font.render(str(self.level), False, (0, 255, 0))
-        self.screen.blit(level_txt, ((self.screen_size[0] / 2 ) - (level_txt.get_width()/2), 50))
+        level_txt = self.font.render(str(self.level), False, (0, 200, 0))
+        x = (self.screen_size[0] / 2 ) - (level_txt.get_width()/2)
+        y = 50
+        self.draw_outline(x, y, str(self.level), (225,225,225), 1)
+        self.screen.blit(level_txt, (x, y))
 
     def draw_spikes(self):
         for spike in self.spike_arr + self.static_spike_arr:
@@ -189,7 +193,7 @@ class SpikeGame:
         if any(x == 0 for x in self.players_stock):
             self.end_game()
         else:
-            self.draw_bg()
+            self.draw()
             self.game.set_timer_state(self)
 
     def is_player_alive(self):
@@ -251,23 +255,31 @@ class SpikeGame:
 
     def draw_end_round(self):
         if not (self.player1.is_alive or self.players_stock[0] == 0):
-            textsurface = self.font.render(self.player1.name + ' lost one life!', False, (255, 0, 0))
-            self.screen.blit(textsurface,((self.screen_size[0] / 2 ) - (textsurface.get_width()/2),
-                (self.screen_size[1] / 2) - (textsurface.get_height()/2)-35))
+            textsurface = self.font.render(self.player1.name + ' lost one life!', False, (200, 0, 0))
+            x = (self.screen_size[0] / 2 ) - (textsurface.get_width()/2)
+            y = (self.screen_size[1] / 2) - (textsurface.get_height()/2)-35
+            self.draw_outline(x, y, self.player1.name + ' lost one life!', (225,225,225), 1)
+            self.screen.blit(textsurface, (x, y))
         if not (self.player2.is_alive or self.players_stock[1] == 0):
-            textsurface = self.font.render(self.player2.name + ' lost one life!', False, (255, 0, 0))
-            self.screen.blit(textsurface,((self.screen_size[0] / 2 ) - (textsurface.get_width()/2),
-                (self.screen_size[1] / 2) - (textsurface.get_height()/2)+35))
+            textsurface = self.font.render(self.player2.name + ' lost one life!', False, (200, 0, 0))
+            x = (self.screen_size[0] / 2 ) - (textsurface.get_width()/2)
+            y = (self.screen_size[1] / 2) - (textsurface.get_height()/2)+35
+            self.draw_outline(x, y, self.player2.name + ' lost one life!', (225,225,225), 1)
+            self.screen.blit(textsurface, (x, y))
 
     def draw_end_game_msg(self):
         if self.players_stock[0] == 0:
-            textsurface = self.font.render(self.player1.name + ' lost the game!', False, (255, 0, 0))
-            self.screen.blit(textsurface,((self.screen_size[0] / 2 ) - (textsurface.get_width()/2),
-                (self.screen_size[1] / 2) - (textsurface.get_height()/2)-35))
+            textsurface = self.font.render(self.player1.name + ' lost the game!', False, (200, 0, 0))
+            x = self.screen_size[0] / 2  - textsurface.get_width()/2
+            y = self.screen_size[1] / 2 - (textsurface.get_height()/2)-35
+            self.draw_outline(x, y, self.player1.name + ' lost the game!', (225,225,225), 1)
+            self.screen.blit(textsurface,(x, y))
         if self.players_stock[1] == 0:
-            textsurface = self.font.render(self.player2.name + ' lost the game!', False, (255, 0, 0))
-            self.screen.blit(textsurface,((self.screen_size[0] / 2 ) - (textsurface.get_width()/2),
-                (self.screen_size[1] / 2) - (textsurface.get_height()/2)+35))
+            textsurface = self.font.render(self.player2.name + ' lost the game!', False, (200, 0, 0))
+            x = self.screen_size[0] / 2  - textsurface.get_width()/2
+            y = self.screen_size[1] / 2 - (textsurface.get_height()/2)+35
+            self.draw_outline(x, y, self.player2.name + ' lost the game!', (225,225,225), 1)
+            self.screen.blit(textsurface, (x, y))
 
     def draw_stock(self):
         for x in xrange(self.STOCK):
@@ -282,3 +294,9 @@ class SpikeGame:
                 Heart(self.screen_size[0]/2 - (x + 2) * 20, self.spike_height + 10, (200, 0, 0)).draw(self.screen, False)
             else:
                 Heart(self.screen_size[0]/2 - (x + 2) * 20, self.spike_height + 10, (200, 0, 0)).draw(self.screen, True)
+    
+    def draw_outline(self, x, y, text, color, offset):
+        textsurface2 = self.font.render(text, False, color)
+        for dx in [-offset, 0, offset]:
+                for dy in [-offset, 0, offset]:
+                    self.game.screen.blit(textsurface2, (x + dx, y + dy))

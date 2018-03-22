@@ -151,4 +151,4 @@ class Menu:
 
             spikegame = spike_game.SpikeGame(self.game, (self.teams.keys()[self.team1], self.teams.keys()[self.team2]))
             #TODO nice rule message
-            self.game.state = rules.rules(self.game, "touche pa o pik si tu meur tu bwer", spikegame)
+            self.game.state = rules.rules(self.game, "sprites/rule1.png", spikegame)

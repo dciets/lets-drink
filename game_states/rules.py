@@ -4,20 +4,21 @@ from controller import Controller
 class rules:
 
     #callback define the next state to run
-    def __init__(self, game, text, callback):
+    def __init__(self, game, image, callback):
         self.game = game
         self.screen = game.screen
-        self.text = text
+        self.image = pygame.image.load(image).convert_alpha()
+        self.image = pygame.transform.scale(self.image, (self.screen.get_width() / 2, self.screen.get_height() / 2))
         self.callback = callback
         self.font = pygame.font.SysFont('Roboto', 50)
-        self.text_x = self.screen.get_width() / 2
-        self.text_y = self.screen.get_height() / 2
+        self.center_x = self.screen.get_width() / 2
+        self.center_y = self.screen.get_height() / 2
         self.player1_ready = False
         self.player2_ready = False
 
     #show text until both player are ready then run the callback state
     def run(self):
-        self.draw_rules()
+        self.draw_image()
         for evt in pygame.event.get([Controller.BUTTON_PRESSED, Controller.BUTTON_RELEASED]):
             if evt.type == Controller.BUTTON_PRESSED and evt.index == 0:
                 self.player1_ready = True
@@ -31,6 +32,5 @@ class rules:
         for evt in pygame.event.get([Controller.BUTTON_PRESSED, Controller.BUTTON_RELEASED]):
             pass
 
-    def draw_rules(self):
-        textsurface = self.font.render(str(self.text), False, (0,255,128))
-        self.screen.blit(textsurface, (self.text_x - textsurface.get_width()/2, self.text_y))
+    def draw_image(self):
+        self.screen.blit(self.image, (self.center_x - self.image.get_width()/2, self.center_y - self.image.get_height()/2))
