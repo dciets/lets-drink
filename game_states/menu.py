@@ -4,14 +4,16 @@ import pygame.gfxdraw
 import yaml
 from spike_game import spike_game
 from game_states import rules
+from bg_menu import Background
 
 class Menu:
 
-    ITEM_FOREGROUND_COLOR = (100, 150, 255)
+    ITEM_FOREGROUND_COLOR = (0, 0, 0)
     ITEM_FOREGROUND_COLOR_SELECTED = (255, 255, 255)
 
     def __init__(self, game):
         self.game = game
+        self.screen = self.game.screen
         self.team1 = 0
         self.team2 = 0
         self.teams = yaml.load(open('data/teams.yml').read())
@@ -20,9 +22,10 @@ class Menu:
         self.current_time = pygame.time.get_ticks()
         self.change_time = self.current_time + self.delay
         self.ready = [False, False]
+        self.background = Background(game)
 
     def run(self):
-        self.game.screen.fill((0,0,0))
+        self.background.draw()
         self.current_time = pygame.time.get_ticks()
 
 
@@ -36,9 +39,14 @@ class Menu:
 
         #Prints title "Choose your teams"
         text = 'Choose your team'
-        textsurface = self.game.title_font.render(text, True, (200, 0, 0))
+        textsurface = self.game.title_font.render(text, True, (255,255,0))
+        textsurface2 = self.game.title_font.render(text, True, (0,0,0))        
         x = (self.game.screen.get_width() - textsurface.get_width())/2
         y = 0
+
+        for dx in [-1, 0, 1]:
+                for dy in [-2, 0, 2]:
+                    self.game.screen.blit(textsurface2, (x + dx, y + dy))
         self.game.screen.blit(textsurface, (x, y))
 
         for evt in pygame.event.get([Controller.BUTTON_PRESSED, Controller.BUTTON_RELEASED]):
@@ -73,11 +81,15 @@ class Menu:
             team_name = list(self.teams)[team]
             text = '{} - {} pts'.format(team_name, self.teams[team_name])
             color = Menu.ITEM_FOREGROUND_COLOR_SELECTED if team == self.team1 else Menu.ITEM_FOREGROUND_COLOR
+            bg_color = (0,0,0) if team == self.team1 else (255,255,255)
             textsurface = self.game.font.render(text, True, color)
+            textsurface2 = self.game.font.render(text, True, bg_color)
             x = 1*self.game.screen.get_width()/4 - textsurface.get_width()/2
             y = self.game.screen.get_height()/2 - (4 - i)*45 - textsurface.get_height()/2
+            for dx in [-1, 0, 1]:
+                for dy in [-1, 0, 1]:
+                    self.game.screen.blit(textsurface2, (x + dx, y + dy))
             self.game.screen.blit(textsurface, (x, y))
-
 
         if self.ready[0]:
             ts1 = self.game.title_font.render("READY", True, (0, 255, 0))
@@ -95,9 +107,14 @@ class Menu:
             team_name = list(self.teams)[team]
             text = '{} - {} pts'.format(team_name, self.teams[team_name])
             color = Menu.ITEM_FOREGROUND_COLOR_SELECTED if team == self.team2 else Menu.ITEM_FOREGROUND_COLOR
+            bg_color = (0,0,0) if team == self.team2 else (255,255,255)
             textsurface = self.game.font.render(text, True, color)
+            textsurface2 = self.game.font.render(text, True, bg_color)
             x = 3*self.game.screen.get_width()/4 - textsurface.get_width()/2
             y = self.game.screen.get_height()/2 - (4 - i)*45 - textsurface.get_height()/2
+            for dx in [-1, 0, 1]:
+                for dy in [-1, 0, 1]:
+                    self.game.screen.blit(textsurface2, (x + dx, y + dy))
             self.game.screen.blit(textsurface, (x, y))
 
         if self.ready[1]:

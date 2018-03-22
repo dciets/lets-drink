@@ -9,7 +9,7 @@ class rules:
         self.screen = game.screen
         self.text = text
         self.callback = callback
-        self.font = pygame.font.SysFont('Comic Sans MS', 50)
+        self.font = pygame.font.SysFont('Roboto', 50)
         self.text_x = self.screen.get_width() / 2
         self.text_y = self.screen.get_height() / 2
         self.player1_ready = False

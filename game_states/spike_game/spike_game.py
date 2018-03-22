@@ -44,7 +44,7 @@ class SpikeGame:
         self.screen = game.screen
         self.game = game
         self.start = time.time()
-        self.font = pygame.font.SysFont('Comic Sans MS', 72)
+        self.font = pygame.font.SysFont('Roboto', 72)
         self.screen_size = [self.screen.get_width(), self.screen.get_height()]
         self.players_name = players_name
         self.spike_width = self.screen_size[0] / 20

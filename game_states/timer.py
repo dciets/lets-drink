@@ -8,7 +8,7 @@ class timer:
         self.game = game
         self.screen = game.screen
         self.callback = callback
-        self.font = pygame.font.SysFont('Comic Sans MS', 72)
+        self.font = pygame.font.SysFont('Roboto', 72)
         self.delay = 1000
         self.current_time = pygame.time.get_ticks()
         self.sec = nb_sec

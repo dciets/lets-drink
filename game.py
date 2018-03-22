@@ -24,8 +24,8 @@ class Game:
     def __init__(self, border):
         '''Init game state, player score, game count, etc...'''
         self.border = border
-        self.state = menu.Menu(self)
         self.screen = border.subsurface(Rect((Game.BORDER_SIZE, Game.BORDER_SIZE), (Game.SCREEN_WIDTH - 2 * Game.BORDER_SIZE, Game.SCREEN_HEIGHT - 2 * Game.BORDER_SIZE)))
+        self.state = menu.Menu(self)
         self.timer = Clock()
 
         self.font = pygame.font.SysFont('Roboto', 30)
