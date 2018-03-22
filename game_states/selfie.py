@@ -11,6 +11,8 @@ def darken(color, factor):
 class Selfie:
     SHADOW = 8
 
+    LOGO = "sprites/logo.png"
+
     def __init__(self, game, players=[], winners=[]):
         self.game = game
         self.size = (1280, 1024)
@@ -27,6 +29,8 @@ class Selfie:
 
         self.players = players or ['Sherbrooke', 'Polytechnique']
         self.winners = winners or [True, False]
+        self.logo = pygame.image.load(self.LOGO)
+        self.logo = pygame.transform.scale(self.logo, (self.game.screen.get_width() / 4, self.game.screen.get_height() / 4))
 
     def render_overlay(self, surface):
         colors = [(22, 105, 249), (64, 249, 22)]
@@ -52,8 +56,14 @@ class Selfie:
 
                 textsurface = self.team_font.render("WIN", False, color)
                 surface.blit(textsurface, (x, y))
+        
+        self.draw_logo(surface)
 
-
+    def draw_logo(self, surface):
+        surface.blit(self.logo, self.lets_play_image_coord())
+    
+    def lets_play_image_coord(self):
+        return (self.game.screen.get_width()/2 - self.logo.get_width()/2, self.game.screen.get_height ()- self.logo.get_height())
 
     def run(self):
         if self.take_photo:
@@ -80,6 +90,7 @@ class Selfie:
 
             self.game.border.fill((0, 0, 0))
             self.game.state = menu.Menu(self.game)
+            self.cam.stop()
 
             return
 

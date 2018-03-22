@@ -216,7 +216,7 @@ class SpikeGame:
         elif not self.players_stock[1] == 0:
             self.game.end_game(list(self.players_name), [False, True])
         else:
-            self.game.end_game()
+            self.game.end_game(list(self.players_name))
 
     def remove_stock(self):
         if not self.round_end:
